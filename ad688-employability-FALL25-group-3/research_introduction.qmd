@@ -1,0 +1,10 @@
+---
+title: "Research Introduction: Geographic and Remote Work Analysis"
+author: "Team 3"
+date: today
+format: 
+  html:
+    bibliography: references.bib
+    csl: csl/econometrica.csl
+    toc: true
+---
