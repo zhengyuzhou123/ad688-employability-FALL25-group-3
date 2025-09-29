@@ -11,14 +11,70 @@ csl: csl/econometrica.csl
 toc: true
 ---
 
-# Introduction
-Welcome to our project website for **AD688 Employability - Fall 2025**.  
-This site presents our analysis of geographic and remote work patterns in the 2024 job market.
+Research Rationale
+---------------------
+Our team chose Geographic and Remote Work Analysis as our research topic.
+Since the outbreak of the pandemic, the rise of remote work, along with the continuous emergence of opportunities related to artificial intelligence, has changed the way job seekers evaluate career choices. 
+At the same time, cities like Austin, Denver and Raleigh-Durham are leveraging flexible work policies and lower living costs to attract new talent.
 
-# Team Members
-- ZHENGYU ZHOU  
-- JUNHAO WANG  
-- BINGRUI QIAO  
+Why is this topic important?
+---------------------
+In today's AI-dominated landscape, geographic location and skill sets have become pivotal factors in employment opportunities. 
+As AI-driven technologies continue to enhance productivity, understanding the following aspects is critical: comparative job growth between AI and traditional sectors, hiring dynamics in major tech hubs such as Silicon Valley, Boston, and Austin, the urban-rural divide in AI versus non-AI career opportunities, and the transformation of remote work paradigms.
 
-# Links
+Trend Analysis
+---------------------
+1.**Which cities/states show the fastest AI vs. non-AI job growth?**
+
+In AI careers,Recent labor market data show that AI job growth is highly concentrated in a few geographic clusters. Washington, D.C. ranks first nationwide, with 4.4% of all job postings requiring AI skills—reflecting the influence of federal agencies and government contractors. Washington State and Delaware also score highly, with roughly 3.4% and 3.3% of postings tied to AI skills. At the metropolitan level, New York, Seattle, and San Jose (Silicon Valley) continue to dominate in terms of total AI job postings, while the D.C. metro area stands out for its high proportion of AI-related roles. Nationally, postings mentioning AI skills rose 20% year-over-year in 2024, with demand for generative AI skills nearly quadrupling (66,000 postings vs. 16,000 the year before). This indicates that AI employment opportunities remain concentrated in traditional tech hubs and policy centers, but are also beginning to diffuse more broadly across states.[@lightcast2025ai][@um2024aimaps].
+
+By contrast, non-AI job growth is more geographically widespread and driven by healthcare, manufacturing, retail, and construction. According to Bureau of Labor Statistics data, 33 states recorded year-over-year nonfarm employment gains in 2024, showing broad-based expansion. Some smaller metropolitan areas also outperformed national averages: Rochester, MN (+6.5%) and Stockton–Lodi, CA (+5.3%) posted the fastest annual growth rates, largely due to healthcare and logistics. This suggests that while AI jobs cluster around major innovation hubs, non-AI employment growth is more diffuse and often led by local service and healthcare economies.[@bls2024survey]
+
+Therefore,AI jobs: Fastest growth and highest concentration in D.C., Washington State, New York, and Silicon Valley.
+
+Non-AI jobs: More evenly distributed, with strong gains in healthcare-driven mid-sized metros and across a majority of states.
+
+2.**Are remote jobs increasing or decreasing across industries？**
+
+Base on industry classification, Remote work has settled into a “new normal.” After 
+spiking during the pandemic, remote postings have declined modestly since 2022 but remain far above pre-COVID levels. As of May 2025, about 7.5% of U.S. job postings explicitly offered remote work, down from over 10% in early 2022. In parallel, Bureau of Labor Statistics surveys show that roughly one in five U.S. workers engaged in telework during 2024, compared with less than 6% before the pandemic. This indicates a structural shift: remote work is no longer expanding rapidly, but it has stabilized at a significantly higher baseline.[@bls2024survey]
+
+Information Technology & Finance：Remote and hybrid work remain most common, with nearly half of finance workers teleworking at least part of the time in late 2023. Professional and management occupations also report about one-third of workers telecommuting.[@bls2024survey]
+
+Healthcare & Retail： Remote work is minimal because these jobs require physical presence. Healthcare has seen little sustained increase in remote roles beyond telehealth support functions.
+
+Manufacturing & Construction.：Almost entirely on-site, with negligible remote adoption.
+
+Education： Remote/hybrid models remain above pre-pandemic norms but below 2020–21 peaks, reflecting the partial persistence of online teaching.
+
+Large employers are increasingly nudging staff toward more in-office time (sometimes called “hybrid creep”), which explains the slight decline in job postings labeled as remote. Still, worker demand for flexibility remains strong, and firms in competitive sectors continue to offer hybrid/remote options as a talent attraction strategy.
+
+Takeaway：Remote work is not disappearing but has plateaued at ~7–8% of job postings and about 20–23% of workers overall.
+
+Tech, finance, and professional services maintain the highest levels of remote 
+adoption.
+
+Healthcare, retail, and manufacturing remain overwhelmingly in-person
+
+The long-term trajectory suggests remote work will remain a durable labor market feature, but hybrid rather than fully remote arrangements are becoming dominant.[@makridis2024remote][@bick2024remote]
+
+Traditional technology hubs such as Silicon Valley and New York City continue to exert a dominant influence on tech-sector hiring, particularly in high-skill domains such as artificial intelligence. As of 2024, more than 65% of AI engineers were concentrated in these two metropolitan regions. Despite challenges such as rising housing costs, narrowing salary differentials, and the widespread adoption of remote work, these legacy hubs retain their competitive edge due to well-established innovation ecosystems, dense professional networks, and unparalleled talent pools. At the same time, however, there is growing evidence of geographic diversification in the tech labor market. Emerging cities such as Miami and San Diego are demonstrating substantial growth, propelled not by large-scale corporate relocations, but by factors such as lifestyle appeal, lower cost of living, and favorable local policies—particularly Miami’s tax advantages. In 2024, Miami recorded a 12% year-over-year increase in AI-related roles, while San Diego experienced a 7% rise in Big Tech employment and secured $5.7 billion in venture capital funding, marking one of the most robust investment years in its histor. In contrast, former high-growth hubs like Austin and Houston are showing signs of deceleration. Austin saw a 6% contraction in venture-backed startup employment, and Houston experienced a more substantial decline of 10.9%. These downward trends are attributed to infrastructure shortcomings, cultural friction, volatile housing markets, and the partial rollback of remote work in favor of hybrid return-to-office (RTO) policies, which have influenced talent mobility and employer location preferences[@signalfire2025talent]
+
+Generative AI introduces a reversal in the geography of job market exposure compared to earlier automation technologies. Whereas prior waves of automation—such as robotics and enterprise software—primarily disrupted rural and small-town economies by replacing routine manual or physical labor, generative AI disproportionately affects urban, high-skill, white-collar labor markets. These urban centers, including San Jose, San Francisco, New York, and Washington D.C., are home to occupations rich in cognitive, nonroutine tasks such as coding, writing, and data analysis—tasks highly susceptible to AI augmentation or displacement.[@muro2025geography]
+
+As a result, AI exposure rates in urban counties often exceed 40%, while rural counties average closer to 30%, reflecting both differing occupational structures and varying access to information-oriented industries. While rural areas may be more insulated from AI disruption, they are also less likely to benefit from AI-driven productivity gains. This spatial shift in exposure demands new policy attention focused on urban workforce reskilling, while also ensuring rural communities are not left behind in the emerging AI economy.[@muro2025geography]
+
+What do you expect to find in your analysis?
+---------------------
+Our research encompasses various aspects of geographic distribution and remote work trends. Specifically, we aim to investigate: Job growth patterns across different cities and states, including a comparative analysis of which metropolitan areas demonstrate the highest expansion rates for both AI-related and non-AI career opportunities. 
+The evolution of remote work arrangements, examining whether remote positions are
+experiencing growth or decline and how this shift affects workforce distribution. 
+Comprehensive analysis of tech hub dynamics, identifying whether traditional technology centers like Silicon Valley, Austin, and Boston continue to dominate the hiring landscape, or if emerging locations are gaining competitive advantages. 
+The urban-rural divide in employment opportunities, investigating how job market conditions differ between metropolitan and rural areas for both AI and traditional professional roles, and what this means for workforce mobility and regional economic development.
+
+
+
+
+
+# references
 - [Research Introduction](research_introduction.qmd)
