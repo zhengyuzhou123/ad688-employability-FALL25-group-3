@@ -13,7 +13,7 @@ toc: true
 
 Research Rationale
 ---------------------
-Our team chose Geographic and Remote Work Analysis as our research topic.
+Our team chose **Geographic and Remote Work Analysis** as our research topic.
 Since the outbreak of the pandemic, the rise of remote work, along with the continuous emergence of opportunities related to artificial intelligence, has changed the way job seekers evaluate career choices. 
 At the same time, cities like Austin, Denver and Raleigh-Durham are leveraging flexible work policies and lower living costs to attract new talent.
 
@@ -37,9 +37,9 @@ Non-AI jobs: More evenly distributed, with strong gains in healthcare-driven mid
 2.**Are remote jobs increasing or decreasing across industries？**
 
 Base on industry classification, Remote work has settled into a “new normal.” After 
-spiking during the pandemic, remote postings have declined modestly since 2022 but remain far above pre-COVID levels. As of May 2025, about 7.5% of U.S. job postings explicitly offered remote work, down from over 10% in early 2022. In parallel, Bureau of Labor Statistics surveys show that roughly one in five U.S. workers engaged in telework during 2024, compared with less than 6% before the pandemic. This indicates a structural shift: remote work is no longer expanding rapidly, but it has stabilized at a significantly higher baseline.[@bls2024survey]
+spiking during the pandemic, remote postings have declined modestly since 2022 but remain far above pre-COVID levels. As of May 2025, about 7.5% of U.S. job postings explicitly offered remote work, down from over 10% in early 2022. In parallel, Bureau of Labor Statistics surveys show that roughly one in five U.S. workers engaged in telework during 2024, compared with less than 6% before the pandemic. This indicates a structural shift: remote work is no longer expanding rapidly, but it has stabilized at a significantly higher baseline [@bls2024survey].
 
-Information Technology & Finance：Remote and hybrid work remain most common, with nearly half of finance workers teleworking at least part of the time in late 2023. Professional and management occupations also report about one-third of workers telecommuting.[@bls2024survey]
+Information Technology & Finance：Remote and hybrid work remain most common, with nearly half of finance workers teleworking at least part of the time in late 2023. Professional and management occupations also report about one-third of workers telecommuting [@bls2024survey].
 
 Healthcare & Retail： Remote work is minimal because these jobs require physical presence. Healthcare has seen little sustained increase in remote roles beyond telehealth support functions.
 
@@ -56,7 +56,7 @@ adoption.
 
 Healthcare, retail, and manufacturing remain overwhelmingly in-person
 
-The long-term trajectory suggests remote work will remain a durable labor market feature, but hybrid rather than fully remote arrangements are becoming dominant.[@makridis2024remote][@bick2024remote]
+The long-term trajectory suggests remote work will remain a durable labor market feature, but hybrid rather than fully remote arrangements are becoming dominant [@makridis2024remote；@bick2024remote].
 
 Traditional technology hubs such as Silicon Valley and New York City continue to exert a dominant influence on tech-sector hiring, particularly in high-skill domains such as artificial intelligence. As of 2024, more than 65% of AI engineers were concentrated in these two metropolitan regions. Despite challenges such as rising housing costs, narrowing salary differentials, and the widespread adoption of remote work, these legacy hubs retain their competitive edge due to well-established innovation ecosystems, dense professional networks, and unparalleled talent pools. At the same time, however, there is growing evidence of geographic diversification in the tech labor market. Emerging cities such as Miami and San Diego are demonstrating substantial growth, propelled not by large-scale corporate relocations, but by factors such as lifestyle appeal, lower cost of living, and favorable local policies—particularly Miami’s tax advantages. In 2024, Miami recorded a 12% year-over-year increase in AI-related roles, while San Diego experienced a 7% rise in Big Tech employment and secured $5.7 billion in venture capital funding, marking one of the most robust investment years in its histor. In contrast, former high-growth hubs like Austin and Houston are showing signs of deceleration. Austin saw a 6% contraction in venture-backed startup employment, and Houston experienced a more substantial decline of 10.9%. These downward trends are attributed to infrastructure shortcomings, cultural friction, volatile housing markets, and the partial rollback of remote work in favor of hybrid return-to-office (RTO) policies, which have influenced talent mobility and employer location preferences[@signalfire2025talent]
 
@@ -72,9 +72,3 @@ experiencing growth or decline and how this shift affects workforce distribution
 Comprehensive analysis of tech hub dynamics, identifying whether traditional technology centers like Silicon Valley, Austin, and Boston continue to dominate the hiring landscape, or if emerging locations are gaining competitive advantages. 
 The urban-rural divide in employment opportunities, investigating how job market conditions differ between metropolitan and rural areas for both AI and traditional professional roles, and what this means for workforce mobility and regional economic development.
 
-
-
-
-
-# references
-- [Research Introduction](research_introduction.qmd)
