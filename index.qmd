@@ -1,0 +1,24 @@
+---
+title: "Geographic and Remote Work Analysis: Job Market 2024"
+author:
+  - "ZHENGYU ZHOU"
+  - "JUNHAO WANG"
+  - "BINGRUI QIAO"
+date: today
+format: html
+bibliography: references.bib
+csl: csl/econometrica.csl
+toc: true
+---
+
+# Introduction
+Welcome to our project website for **AD688 Employability - Fall 2025**.  
+This site presents our analysis of geographic and remote work patterns in the 2024 job market.
+
+# Team Members
+- ZHENGYU ZHOU  
+- JUNHAO WANG  
+- BINGRUI QIAO  
+
+# Links
+- [Research Introduction](research_introduction.qmd)
