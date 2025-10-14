@@ -9,6 +9,10 @@ website:
         text: Home
       - href: research_introduction.qmd
         text: Research Intro
+      - href: data_analysis.qmd
+        text: "Data Analysis"
+      - href: career_plan.qmd
+        text: "Career Strategy"
 
 format:
   html:
