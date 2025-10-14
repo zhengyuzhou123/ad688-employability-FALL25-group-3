@@ -209,4 +209,6 @@ __marimo__/
 /.quarto/
 **/*.quarto_ipynb
 _site/
-quarto.deb
+quarto*.deb
+.quarto/
+.quarto-cache/
