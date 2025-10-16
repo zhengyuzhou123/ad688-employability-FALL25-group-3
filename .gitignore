@@ -212,4 +212,4 @@ _site/
 quarto*.deb
 .quarto/
 .quarto-cache/
-.csv
+data/*.csv
