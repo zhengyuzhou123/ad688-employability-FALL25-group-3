@@ -213,3 +213,4 @@ quarto*.deb
 .quarto/
 .quarto-cache/
 data/*.csv
+.csv
