@@ -1,11 +1,5 @@
 project:
   type: website
-  
-execute:
-  freeze: false
-
-dependencies:
-  - requirements.txt
 
 website:
   title: "ad688-employability-FALL25-group-3"

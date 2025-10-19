@@ -217,3 +217,47 @@ print(summary)
 log("✅ Cleaning pipeline finished successfully.")
 ```
 
+## 📊 5 Exploratory Data Analysis (EDA)
+
+Exploratory Data Analysis (EDA) allows us to identify patterns and distributions in the job market dataset.  
+In this section, we focus on three aspects:
+1. Job postings by industry  
+2. Salary distributions  
+3. Remote vs. on-site job proportions
+
+---
+
+### 🏭 5.1 Job Postings by Industry
+
+Understanding industry demand helps reveal which sectors are most active in hiring.
+
+```{python}
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import os
+
+# Load dataset
+df = pd.read_csv("data/lightcast_job_postings.csv")
+
+# Ensure /figures directory exists
+os.makedirs("figures", exist_ok=True)
+
+# Clean up column names
+df.columns = df.columns.str.strip()
+
+#drop unclassified
+df = df[~df["NAICS_2022_6_NAME"].str.lower().str.contains("unclassified", na=False)]
+
+# Count top 10 industries
+industry_counts = df["NAICS_2022_6_NAME"].value_counts().head(10)
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=industry_counts.values, y=industry_counts.index, orient="h")
+plt.title("Top 10 Industries by Job Postings")
+plt.xlabel("Number of Job Postings")
+plt.ylabel("Industry")
+plt.tight_layout()
+plt.savefig("figures/industry_postings.png", dpi=300)
+plt.close()
+```
