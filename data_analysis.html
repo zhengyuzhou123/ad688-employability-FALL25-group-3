@@ -122,8 +122,26 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#setup-load" id="toc-setup-load" class="nav-link active" data-scroll-target="#setup-load"><span class="header-section-number">1</span> — 4.0 Setup &amp; Load —</a></li>
+  <li><a href="#paths" id="toc-paths" class="nav-link" data-scroll-target="#paths"><span class="header-section-number">2</span> Paths</a></li>
+  <li><a href="#load-data" id="toc-load-data" class="nav-link" data-scroll-target="#load-data"><span class="header-section-number">3</span> Load data</a></li>
+  <li><a href="#drop-redundantirrelevant-columns" id="toc-drop-redundantirrelevant-columns" class="nav-link" data-scroll-target="#drop-redundantirrelevant-columns"><span class="header-section-number">4</span> — 4.1 Drop redundant/irrelevant columns —</a></li>
+  <li><a href="#normalize-column-names-and-basic-types" id="toc-normalize-column-names-and-basic-types" class="nav-link" data-scroll-target="#normalize-column-names-and-basic-types"><span class="header-section-number">5</span> Normalize column names and basic types</a></li>
+  <li><a href="#visualize-handle-missing-values" id="toc-visualize-handle-missing-values" class="nav-link" data-scroll-target="#visualize-handle-missing-values"><span class="header-section-number">6</span> — 4.2 Visualize &amp; handle missing values —</a></li>
+  <li><a href="#log-top-20-missing-columns" id="toc-log-top-20-missing-columns" class="nav-link" data-scroll-target="#log-top-20-missing-columns"><span class="header-section-number">7</span> Log top-20 missing columns</a></li>
+  <li><a href="#drop-columns-with-50-missing" id="toc-drop-columns-with-50-missing" class="nav-link" data-scroll-target="#drop-columns-with-50-missing"><span class="header-section-number">8</span> Drop columns with &gt;50% missing</a></li>
+  <li><a href="#impute-numeric" id="toc-impute-numeric" class="nav-link" data-scroll-target="#impute-numeric"><span class="header-section-number">9</span> Impute numeric</a></li>
+  <li><a href="#impute-categorical" id="toc-impute-categorical" class="nav-link" data-scroll-target="#impute-categorical"><span class="header-section-number">10</span> Impute categorical</a></li>
+  <li><a href="#remove-duplicates" id="toc-remove-duplicates" class="nav-link" data-scroll-target="#remove-duplicates"><span class="header-section-number">11</span> — 4.3 Remove duplicates —</a></li>
+  <li><a href="#optional-salary-sanity-filter" id="toc-optional-salary-sanity-filter" class="nav-link" data-scroll-target="#optional-salary-sanity-filter"><span class="header-section-number">12</span> — 4.4 Optional salary sanity filter —</a></li>
+  <li><a href="#save-summary" id="toc-save-summary" class="nav-link" data-scroll-target="#save-summary"><span class="header-section-number">13</span> — 4.5 Save &amp; summary —</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -177,8 +195,63 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<section id="setup-load" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> — 4.0 Setup &amp; Load —</h1>
+<p>import os, textwrap import numpy as np import pandas as pd import matplotlib.pyplot as plt import missingno as msno</p>
+</section>
+<section id="paths" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Paths</h1>
+<p>DATA_PATH = “data/lightcast_job_postings.csv” CLEAN_PATH = “data/cleaned_lightcast.csv” LOG_PATH = “logs/cleaning_log.txt” FIG_MISS = “figures/missing_values_heatmap.png”</p>
+<p>os.makedirs(“logs”, exist_ok=True) os.makedirs(“figures”, exist_ok=True)</p>
+<p>def log(msg: str): with open(LOG_PATH, “a”, encoding=“utf-8”) as f: f.write(msg.rstrip() + “”) print(msg)</p>
+</section>
+<section id="load-data" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Load data</h1>
+<p>df = pd.read_csv(DATA_PATH, low_memory=False, on_bad_lines=“skip”) log(f”Loaded dataset → rows: {len(df):,}, cols: {df.shape[1]}“) log(f”Columns (head): {list(df.columns)[:12]} …“)</p>
+</section>
+<section id="drop-redundantirrelevant-columns" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> — 4.1 Drop redundant/irrelevant columns —</h1>
+<p>columns_to_drop = [ “ID”,“URL”,“ACTIVE_URLS”,“DUPLICATES”,“LAST_UPDATED_TIMESTAMP”, “NAICS2”,“NAICS3”,“NAICS4”,“NAICS5”,“NAICS6”, “SOC_2”,“SOC_3”,“SOC_5”] before_cols = df.shape[1] df.drop(columns=columns_to_drop, inplace=True, errors=“ignore”) after_cols = df.shape[1] log(f”Dropped {before_cols - after_cols} columns; remaining columns: {after_cols}“)</p>
+</section>
+<section id="normalize-column-names-and-basic-types" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Normalize column names and basic types</h1>
+<p>df.columns = [c.strip() for c in df.columns] if “POSTED” in df.columns: df[“POSTED”] = pd.to_datetime(df[“POSTED”], errors=“coerce”) if “Salary” in df.columns: df[“Salary”] = pd.to_numeric( df[“Salary”].astype(str).str.replace(r”[^0-9.-]“,”“, regex=True), errors=”coerce” )</p>
+</section>
+<section id="visualize-handle-missing-values" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> — 4.2 Visualize &amp; handle missing values —</h1>
+<p>plt.figure(figsize=(10,6)) msno.heatmap(df) plt.title(“Missing Values Heatmap”, fontsize=14) plt.tight_layout() plt.savefig(FIG_MISS, dpi=150) plt.show() log(f”Saved missingness heatmap → {FIG_MISS}“)</p>
+</section>
+<section id="log-top-20-missing-columns" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> Log top-20 missing columns</h1>
+<p>na_pct = df.isna().mean().sort_values(ascending=False) * 100 log(“Top-20 columns by missing%:”) for col, pct in na_pct.head(20).items(): log(f” - {col}: {pct:.1f}%“)</p>
+</section>
+<section id="drop-columns-with-50-missing" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Drop columns with &gt;50% missing</h1>
+<p>thresh = len(df) * 0.5 before_cols = df.shape[1] df.dropna(axis=1, thresh=thresh, inplace=True) after_cols = df.shape[1] log(f”Dropped {before_cols - after_cols} high-missing columns (&gt;50%). Remaining: {after_cols}“)</p>
+</section>
+<section id="impute-numeric" class="level1" data-number="9">
+<h1 data-number="9"><span class="header-section-number">9</span> Impute numeric</h1>
+<p>if “Salary” in df.columns: med_salary = df[“Salary”].median() df[“Salary”].fillna(med_salary, inplace=True) log(f”Filled Salary NAs with median: {med_salary:.2f}“)</p>
+</section>
+<section id="impute-categorical" class="level1" data-number="10">
+<h1 data-number="10"><span class="header-section-number">10</span> Impute categorical</h1>
+<p>for cat in [“Industry”,“REMOTE_TYPE_NAME”,“LOCATION”]: if cat in df.columns: df[cat] = df[cat].fillna(“Unknown”).astype(str).str.strip() log(f”Filled {cat} NAs with ‘Unknown’“)</p>
+</section>
+<section id="remove-duplicates" class="level1" data-number="11">
+<h1 data-number="11"><span class="header-section-number">11</span> — 4.3 Remove duplicates —</h1>
+<p>subset_cols = [c for c in [“TITLE”,“COMPANY”,“LOCATION”,“POSTED”] if c in df.columns] before = len(df) if subset_cols: df.drop_duplicates(subset=subset_cols, keep=“first”, inplace=True) after = len(df) log(f”Removed duplicates by {subset_cols}: {before - after} rows dropped; remaining: {after}“)</p>
+</section>
+<section id="optional-salary-sanity-filter" class="level1" data-number="12">
+<h1 data-number="12"><span class="header-section-number">12</span> — 4.4 Optional salary sanity filter —</h1>
+<p>if “Salary” in df.columns: bad = (df[“Salary”] &lt; 1) | (df[“Salary”] &gt; 1_000_000) n_bad = int(bad.sum()) if n_bad &gt; 0: df.loc[bad, “Salary”] = np.nan med2 = df[“Salary”].median() df[“Salary”].fillna(med2, inplace=True) log(f”Clipped extreme Salary ({n_bad} rows) and refilled with median {med2:.2f}“)</p>
+</section>
+<section id="save-summary" class="level1" data-number="13">
+<h1 data-number="13"><span class="header-section-number">13</span> — 4.5 Save &amp; summary —</h1>
+<p>df.to_csv(CLEAN_PATH, index=False) log(f”Saved cleaned dataset → {CLEAN_PATH}“)</p>
+<p>summary = f”“” Rows: {len(df):,} Columns: {df.shape[1]} Sample columns: {list(df.columns)[:12]} ““” print(summary.strip())</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
