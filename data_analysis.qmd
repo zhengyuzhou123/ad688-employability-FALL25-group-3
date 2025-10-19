@@ -81,7 +81,8 @@ if not os.path.exists(DATA_PATH):
     log(f"⚠️ Dataset missing at {DATA_PATH}. Attempting to download from Google Drive...")
     gdrive_url = "https://drive.google.com/uc?id=1V2GCHGt2dkFGqVBeoUFckU4IhUgk4ocQ"
     try:
-        subprocess.run(["gdown", gdrive_url, "-O", DATA_PATH], check=True)
+        import gdown
+        gdown.download(gdrive_url, DATA_PATH, quiet=False)
         log("✅ Dataset downloaded successfully.")
     except Exception as e:
         raise FileNotFoundError(f"❌ Could not download dataset.\nError: {e}")
