@@ -211,7 +211,7 @@ print(summary)
 log("✅ Cleaning pipeline finished successfully.")
 ```
 
-## 5 Exploratory Data Analysis (EDA)
+## Exploratory Data Analysis (EDA)
 
 Exploratory Data Analysis (EDA) allows us to identify patterns and distributions in the job market dataset.  
 In this section, we focus on three aspects:
@@ -221,7 +221,7 @@ In this section, we focus on three aspects:
 
 ---
 
-### 5.1 Job Postings by Industry
+### Job Postings by Industry
 
 Understanding industry demand helps reveal which sectors are most active in hiring.
 
@@ -260,7 +260,7 @@ plt.savefig("figures/industry_postings.png", dpi=300)
 plt.show()
 ```
 
-### 5.2 Salary Distribution by Industry
+### Salary Distribution by Industry
 ```{python}
 import os
 import pandas as pd
@@ -292,7 +292,7 @@ plt.figure(figsize=(10, 6))
 sns.barplot(
     x=avg_salary.values,
     y=avg_salary.index,
-    palette="crest"
+    orient="h"
 )
 plt.title("Average Salary by Industry (Excluding Unclassified)")
 plt.xlabel("Average Salary ($)")
@@ -303,7 +303,8 @@ plt.tight_layout()
 plt.savefig("figures/average_salary_by_industry.png", dpi=300, bbox_inches="tight")
 plt.show()
 ```
-### 5.3 Remote vs. On-Site Jobs
+
+### Remote vs. On-Site Jobs
 ```{python}
 import os
 import pandas as pd
