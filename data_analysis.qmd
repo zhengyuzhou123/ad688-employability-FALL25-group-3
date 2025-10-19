@@ -238,7 +238,7 @@ import seaborn as sns
 import os
 
 # Load dataset
-df = pd.read_csv("data/lightcast_job_postings.csv")
+df = pd.read_csv("data/lightcast_job_postings.csv", low_memory=False)
 
 # Ensure /figures directory exists
 os.makedirs("figures", exist_ok=True)
@@ -275,7 +275,7 @@ import seaborn as sns
 
 os.makedirs("figures", exist_ok=True)
 
-df = pd.read_csv("data/lightcast_job_postings.csv")
+df = pd.read_csv("data/lightcast_job_postings.csv", low_memory=False)
 
 # Define column names
 industry_col = "NAICS_2022_6_NAME"
@@ -318,7 +318,7 @@ import seaborn as sns
 
 os.makedirs("figures", exist_ok=True)
 
-df = pd.read_csv("data/lightcast_job_postings.csv")
+df = pd.read_csv("data/lightcast_job_postings.csv", low_memory=False)
 
 # Clean the REMOTE_TYPE_NAME column
 df["REMOTE_TYPE_NAME"] = (
