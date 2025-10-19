@@ -69,6 +69,17 @@ with open(LOG_PATH, "w", encoding="utf-8") as f:
 with open("logs/_ping.txt", "w", encoding="utf-8") as f:
     f.write("hello from python @ " + str(datetime.datetime.now()) + "\n")
 
+# AUTO-DOWNLOAD IF MISSING
+if not os.path.exists(DATA_PATH):
+    log(f"⚠️ Dataset missing at {DATA_PATH}. Attempting to download from Google Drive...")
+    gdrive_url = "https://drive.google.com/uc?id=1V2GCHGt2dkFGqVBeoUFckU4IhUgk4ocQ"
+    try:
+        subprocess.run(["gdown", gdrive_url, "-O", DATA_PATH], check=True)
+        log("✅ Dataset downloaded successfully.")
+    except Exception as e:
+        raise FileNotFoundError(f"❌ Could not download dataset.\nError: {e}")
+
+
 # Load data
 if not os.path.exists(DATA_PATH):
     raise FileNotFoundError(f"❌ Dataset not found at {DATA_PATH}. Check path & working dir.")
