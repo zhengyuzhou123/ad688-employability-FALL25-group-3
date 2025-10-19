@@ -81,7 +81,10 @@ if not os.path.exists(DATA_PATH):
     raise FileNotFoundError(f"❌ Dataset not found at {DATA_PATH}. Check path & working dir.")
 df = pd.read_csv(DATA_PATH, low_memory=False, on_bad_lines="skip")
 log(f"Loaded dataset → rows: {len(df):,}, cols: {df.shape[1]}")
+```
 
+
+```{python}
 # --- 4.1 Drop redundant/irrelevant columns ---
 
 ```{python}
@@ -107,10 +110,12 @@ df["Salary"] = pd.to_numeric(
 df["Salary"].astype(str).str.replace(r"[^0-9.-]", "", regex=True),
 errors="coerce"
 )
-
-# --- 4.2 Visualize & handle missing values ---
+```
 
 ```{python}
+# --- 4.2 Visualize & handle missing values ---
+
+
 if HAS_MSNO:
 plt.figure(figsize=(10,6))
 msno.heatmap(df)
@@ -150,20 +155,24 @@ for cat in ["Industry","REMOTE_TYPE_NAME","LOCATION"]:
 if cat in df.columns:
 df[cat] = df[cat].fillna("Unknown").astype(str).str.strip()
     log(f"Filled {cat} NAs with 'Unknown'")
-
-# --- 4.3 Remove duplicates ---
+```
 
 ```{python}
+# --- 4.3 Remove duplicates ---
+
+
 subset_cols = [c for c in ["TITLE","COMPANY","LOCATION","POSTED"] if c in df.columns]
 before = len(df)
 if subset_cols:
 df.drop_duplicates(subset=subset_cols, keep="first", inplace=True)
     after = len(df)
     log(f"Removed duplicates by {subset_cols}: {before - after} rows dropped; remaining: {after}")
-
-# --- 4.4 Optional salary sanity filter ---
+```
 
 ```{python}
+# --- 4.4 Optional salary sanity filter ---
+
+
 if "Salary" in df.columns:
 bad = (df["Salary"] < 1) | (df["Salary"] > 1_000_000)
 n_bad = int(bad.sum())
@@ -172,10 +181,13 @@ df.loc[bad, "Salary"] = np.nan
     med2 = df["Salary"].median()
 df["Salary"].fillna(med2, inplace=True)
     log(f"Clipped extreme Salary ({n_bad} rows) and refilled with median {med2:.2f}")
+```
 
-# --- 4.5 Save & summary ---
 
 ```{python}
+# --- 4.5 Save & summary ---
+
+
 df.to_csv(CLEAN_PATH, index=False)
     log(f"Saved cleaned dataset → {CLEAN_PATH}")
 
