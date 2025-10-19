@@ -18,7 +18,7 @@ execute:
   freeze: false
   error: false
   cache: false
-  enabled: !is_ci()
+  enabled: !expr (os.getenv("CI", "false") != "true")
 jupyter: python3
 ---
 
