@@ -161,6 +161,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#data-cleaning-preprocessing" id="toc-data-cleaning-preprocessing" class="nav-link active" data-scroll-target="#data-cleaning-preprocessing"><span class="header-section-number">1</span> 4. Data Cleaning &amp; Preprocessing</a></li>
+  <li><a href="#exploratory-data-analysis-eda" id="toc-exploratory-data-analysis-eda" class="nav-link" data-scroll-target="#exploratory-data-analysis-eda"><span class="header-section-number">2</span> 📊 5 Exploratory Data Analysis (EDA)</a>
+  <ul class="collapse">
+  <li><a href="#job-postings-by-industry" id="toc-job-postings-by-industry" class="nav-link" data-scroll-target="#job-postings-by-industry"><span class="header-section-number">2.1</span> 🏭 5.1 Job Postings by Industry</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -204,7 +208,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="data-cleaning-preprocessing" class="level2" data-number="1">
 <h2 data-number="1" class="anchored" data-anchor-id="data-cleaning-preprocessing"><span class="header-section-number">1</span> 4. Data Cleaning &amp; Preprocessing</h2>
 <p>In this section, we clean the Lightcast dataset, log each step, and save a reproducible cleaned CSV for downstream EDA.</p>
-<div id="1d884cd1" class="cell" data-execution_count="2">
+<div id="e75f8bd4" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os, datetime</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>os.makedirs(<span class="st">"logs"</span>, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">"logs/_ping.txt"</span>, <span class="st">"w"</span>, encoding<span class="op">=</span><span class="st">"utf-8"</span>) <span class="im">as</span> f:</span>
@@ -214,7 +218,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code>WROTE: logs/_ping.txt</code></pre>
 </div>
 </div>
-<div id="ae3f2c98" class="cell" data-execution_count="3">
+<div id="93e9a22f" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 4.0 Setup &amp; Load (clean version) ---</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os, datetime</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -275,7 +279,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code>Loaded dataset → rows: 72,498, cols: 131</code></pre>
 </div>
 </div>
-<div id="99fe153c" class="cell" data-execution_count="4">
+<div id="0256ff72" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 4.1 Drop redundant/irrelevant columns ---</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>columns_to_drop <span class="op">=</span> [</span>
@@ -304,7 +308,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code>Dropped 13 columns; remaining columns: 118</code></pre>
 </div>
 </div>
-<div id="cf933ace" class="cell" data-execution_count="5">
+<div id="1dbba9b3" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 4.2 Visualize &amp; handle missing values ---</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -385,7 +389,7 @@ Filled REMOTE_TYPE_NAME NAs with 'Unknown'
 Filled LOCATION NAs with 'Unknown'</code></pre>
 </div>
 </div>
-<div id="df35b20a" class="cell" data-execution_count="6">
+<div id="929a6aed" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 4.3 Remove duplicates ---</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -399,7 +403,7 @@ Filled LOCATION NAs with 'Unknown'</code></pre>
 <pre><code>Removed duplicates by ['TITLE', 'COMPANY', 'LOCATION', 'POSTED']: 3300 rows dropped; remaining: 69198</code></pre>
 </div>
 </div>
-<div id="7252a373" class="cell" data-execution_count="7">
+<div id="050e18f4" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 4.4 Optional salary sanity filter ---</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -412,7 +416,7 @@ Filled LOCATION NAs with 'Unknown'</code></pre>
 <span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>        df[<span class="st">"Salary"</span>].fillna(med2, inplace<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>        log(<span class="ss">f"Clipped extreme Salary (</span><span class="sc">{</span>n_bad<span class="sc">}</span><span class="ss"> rows) and refilled with median </span><span class="sc">{</span>med2<span class="sc">:.2f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="3a2ba3c2" class="cell" data-execution_count="8">
+<div id="c7821411" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 4.5 Save &amp; summary ---</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -430,8 +434,54 @@ Sample columns: ['LAST_UPDATED_DATE', 'POSTED', 'EXPIRED', 'DURATION', 'SOURCE_T
 ✅ Cleaning pipeline finished successfully.</code></pre>
 </div>
 </div>
+</section>
+<section id="exploratory-data-analysis-eda" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="exploratory-data-analysis-eda"><span class="header-section-number">2</span> 📊 5 Exploratory Data Analysis (EDA)</h2>
+<p>Exploratory Data Analysis (EDA) allows us to identify patterns and distributions in the job market dataset.<br>
+In this section, we focus on three aspects: 1. Job postings by industry<br>
+2. Salary distributions<br>
+3. Remote vs.&nbsp;on-site job proportions</p>
+<hr>
+<section id="job-postings-by-industry" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="job-postings-by-industry"><span class="header-section-number">2.1</span> 🏭 5.1 Job Postings by Industry</h3>
+<p>Understanding industry demand helps reveal which sectors are most active in hiring.</p>
+<div id="8753eac0" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Load dataset</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">"data/lightcast_job_postings.csv"</span>)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Ensure /figures directory exists</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>os.makedirs(<span class="st">"figures"</span>, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Clean up column names</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>df.columns <span class="op">=</span> df.columns.<span class="bu">str</span>.strip()</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="co">#drop unclassified</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df[<span class="op">~</span>df[<span class="st">"NAICS_2022_6_NAME"</span>].<span class="bu">str</span>.lower().<span class="bu">str</span>.contains(<span class="st">"unclassified"</span>, na<span class="op">=</span><span class="va">False</span>)]</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Count top 10 industries</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>industry_counts <span class="op">=</span> df[<span class="st">"NAICS_2022_6_NAME"</span>].value_counts().head(<span class="dv">10</span>)</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>sns.barplot(x<span class="op">=</span>industry_counts.values, y<span class="op">=</span>industry_counts.index, orient<span class="op">=</span><span class="st">"h"</span>)</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Top 10 Industries by Job Postings"</span>)</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Number of Job Postings"</span>)</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Industry"</span>)</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">"figures/industry_postings.png"</span>, dpi<span class="op">=</span><span class="dv">300</span>)</span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>plt.close()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/tmp/ipykernel_2565/1446664479.py:7: DtypeWarning: Columns (19,30) have mixed types. Specify dtype option on import or set low_memory=False.
+  df = pd.read_csv("data/lightcast_job_postings.csv")</code></pre>
+</div>
+</div>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
