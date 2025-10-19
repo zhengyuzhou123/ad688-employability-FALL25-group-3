@@ -1,17 +1,8 @@
----
+
 ---
 title: "Data Analysis"
-subtitle: "Comprehensive Data Cleaning & Exploratory Analysis of Job Market Trends"
+subtitle: "Comprehensive Data Cleaning & Exploratory Analysis"
 author:
-  - name: "Zhengyu Zhou"
-    affiliations:
-      - id: bu
-        name: "Boston University"
-        city: "Boston"
-        state: "MA"
-  - name: "Junhao Wang"
-    affiliations:
-      - ref: bu
   - name: "Bingrui Qiao"
     affiliations:
       - ref: bu
@@ -21,11 +12,13 @@ format:
   html:
     toc: true
     number-sections: true
-    df-print: paged
 execute:
   echo: true
   eval: true
   freeze: false
+  error: false
+  cache: false
+  enabled: !is_ci()
 jupyter: python3
 ---
 

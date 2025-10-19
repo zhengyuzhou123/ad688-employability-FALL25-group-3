@@ -1,6 +1,10 @@
 project:
   type: website
 
+execute:
+  enabled: !is_ci()
+
+
 website:
   title: "ad688-employability-FALL25-group-3"
   navbar:
