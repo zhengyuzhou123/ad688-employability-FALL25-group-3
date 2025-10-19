@@ -45,63 +45,42 @@ print("WROTE: logs/_ping.txt")
 ```
 
 ```{python}
-# --- 4.0 Setup & Load (robust, fixed indent & order) ---
-
-import os, textwrap, datetime
+# --- 4.0 Setup & Load (clean version) ---
+import os, datetime
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-
-
-
-try:
-    import missingno as msno
-    HAS_MSNO = True
-except Exception:
-    HAS_MSNO = False
+import missingno as msno
 
 # Paths
-
 DATA_PATH  = "data/lightcast_job_postings.csv"
 CLEAN_PATH = "data/cleaned_lightcast.csv"
 LOG_PATH   = "logs/cleaning_log.txt"
 FIG_MISS   = "figures/missing_values_heatmap.png"
 
 # Ensure output dirs exist
-
-os.makedirs("data", exist_ok=True)
 os.makedirs("logs", exist_ok=True)
 os.makedirs("figures", exist_ok=True)
 
-# Quick ping to prove Python chunk executes
-
-with open("logs/_ping.txt", "w", encoding="utf-8") as f:
-    f.write("hello from python @ " + str(datetime.datetime.now()) + "\n")
-print("CWD:", os.getcwd())
-print("Wrote logs/_ping.txt")
-
-# Logging helper
-
+# Logger
 def log(msg: str):
     print(msg)
     with open(LOG_PATH, "a", encoding="utf-8") as f:
         f.write(msg.rstrip() + "\n")
 
-# Start fresh log
-
+# Start a fresh log
 with open(LOG_PATH, "w", encoding="utf-8") as f:
     f.write("=== DATA CLEANING LOG START ===\n")
 
-# Check dataset exists BEFORE reading
-
-print("Files in ./data:", os.listdir("data"))
-assert os.path.exists(DATA_PATH), f"❌ Dataset not found at {DATA_PATH}"
+# Ping file (to confirm write permission)
+with open("logs/_ping.txt", "w", encoding="utf-8") as f:
+    f.write("hello from python @ " + str(datetime.datetime.now()) + "\n")
 
 # Load data
-
+if not os.path.exists(DATA_PATH):
+    raise FileNotFoundError(f"❌ Dataset not found at {DATA_PATH}. Check path & working dir.")
 df = pd.read_csv(DATA_PATH, low_memory=False, on_bad_lines="skip")
-    log(f"Loaded dataset → rows: {len(df):,}, cols: {df.shape[1]}")
-    log(f"Columns (head): {list(df.columns)[:12]} ...")
+log(f"Loaded dataset → rows: {len(df):,}, cols: {df.shape[1]}")
 
 # --- 4.1 Drop redundant/irrelevant columns ---
 
