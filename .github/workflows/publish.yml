@@ -35,3 +35,6 @@ jobs:
           target: gh-pages
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
