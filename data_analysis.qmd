@@ -29,6 +29,14 @@ jupyter: python3
 
 In this section, we clean the Lightcast dataset, log each step, and save a reproducible cleaned CSV for downstream EDA.
 ```{python}
+# --- 0.0 Ensure dependencies are installed (for CI / Quarto Cloud) ---
+import sys, subprocess
+
+# package
+for pkg in ["gdown", "pandas", "matplotlib", "missingno", "pyarrow"]:
+    subprocess.run([sys.executable, "-m", "pip", "install", pkg], check=False)
+```
+```{python}
 import os, datetime
 os.makedirs("logs", exist_ok=True)
 with open("logs/_ping.txt", "w", encoding="utf-8") as f:
