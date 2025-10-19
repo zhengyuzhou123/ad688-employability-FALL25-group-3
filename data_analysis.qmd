@@ -105,6 +105,7 @@ log(f"Columns (head): {list(df.columns)[:12]} ...")
 
 # --- 4.1 Drop redundant/irrelevant columns ---
 
+```{python}
 columns_to_drop = [
 "ID","URL","ACTIVE_URLS","DUPLICATES","LAST_UPDATED_TIMESTAMP",
 "NAICS2","NAICS3","NAICS4","NAICS5","NAICS6",
@@ -130,6 +131,7 @@ errors="coerce"
 
 # --- 4.2 Visualize & handle missing values ---
 
+```{python}
 if HAS_MSNO:
 plt.figure(figsize=(10,6))
 msno.heatmap(df)
@@ -172,6 +174,7 @@ log(f"Filled {cat} NAs with 'Unknown'")
 
 # --- 4.3 Remove duplicates ---
 
+```{python}
 subset_cols = [c for c in ["TITLE","COMPANY","LOCATION","POSTED"] if c in df.columns]
 before = len(df)
 if subset_cols:
@@ -181,6 +184,7 @@ log(f"Removed duplicates by {subset_cols}: {before - after} rows dropped; remain
 
 # --- 4.4 Optional salary sanity filter ---
 
+```{python}
 if "Salary" in df.columns:
 bad = (df["Salary"] < 1) | (df["Salary"] > 1_000_000)
 n_bad = int(bad.sum())
@@ -192,11 +196,12 @@ log(f"Clipped extreme Salary ({n_bad} rows) and refilled with median {med2:.2f}"
 
 # --- 4.5 Save & summary ---
 
+```{python}
 df.to_csv(CLEAN_PATH, index=False)
 log(f"Saved cleaned dataset → {CLEAN_PATH}")
 
 summary = f"Rows: {len(df):,}\nColumns: {df.shape[1]}\nSample columns: {list(df.columns)[:12]}"
 print(summary)
 log("✅ Cleaning pipeline finished successfully.")
-
+```
 
