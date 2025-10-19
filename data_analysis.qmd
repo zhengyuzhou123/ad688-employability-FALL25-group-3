@@ -217,7 +217,7 @@ print(summary)
 log("✅ Cleaning pipeline finished successfully.")
 ```
 
-## 📊 5 Exploratory Data Analysis (EDA)
+## 5 Exploratory Data Analysis (EDA)
 
 Exploratory Data Analysis (EDA) allows us to identify patterns and distributions in the job market dataset.  
 In this section, we focus on three aspects:
@@ -227,7 +227,7 @@ In this section, we focus on three aspects:
 
 ---
 
-### 🏭 5.1 Job Postings by Industry
+### 5.1 Job Postings by Industry
 
 Understanding industry demand helps reveal which sectors are most active in hiring.
 
@@ -243,6 +243,9 @@ df = pd.read_csv("data/lightcast_job_postings.csv")
 # Ensure /figures directory exists
 os.makedirs("figures", exist_ok=True)
 
+# col
+industry_col = "NAICS_2022_6_NAME"
+
 # Clean up column names
 df.columns = df.columns.str.strip()
 
@@ -250,14 +253,94 @@ df.columns = df.columns.str.strip()
 df = df[~df["NAICS_2022_6_NAME"].str.lower().str.contains("unclassified", na=False)]
 
 # Count top 10 industries
-industry_counts = df["NAICS_2022_6_NAME"].value_counts().head(10)
+top_industries = df[industry_col].value_counts().head(10)
+
 
 plt.figure(figsize=(10, 6))
-sns.barplot(x=industry_counts.values, y=industry_counts.index, orient="h")
+sns.barplot(x=top_industries.values, y=top_industries.index, orient="h")
 plt.title("Top 10 Industries by Job Postings")
 plt.xlabel("Number of Job Postings")
 plt.ylabel("Industry")
 plt.tight_layout()
 plt.savefig("figures/industry_postings.png", dpi=300)
-plt.close()
+plt.show()
+```
+
+### 5.2 Salary Distribution by Industry
+```{python}
+import os
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+os.makedirs("figures", exist_ok=True)
+
+df = pd.read_csv("data/lightcast_job_postings.csv")
+
+# Define column names
+industry_col = "NAICS_2022_6_NAME"
+salary_col = "SALARY"
+
+# Filter and clean salary
+df = df[df[salary_col] > 0]
+df = df[~df[industry_col].str.lower().str.contains("unclassified")]
+
+# Compute average salary by industry
+avg_salary = (
+    df.groupby(industry_col)[salary_col]
+    .mean()
+    .sort_values(ascending=False)
+    .head(10)
+)
+
+# Visual
+plt.figure(figsize=(10, 6))
+sns.barplot(
+    x=avg_salary.values,
+    y=avg_salary.index,
+    palette="crest"
+)
+plt.title("Average Salary by Industry (Excluding Unclassified)")
+plt.xlabel("Average Salary ($)")
+plt.ylabel("Industry")
+plt.tight_layout()
+
+# save
+plt.savefig("figures/average_salary_by_industry.png", dpi=300, bbox_inches="tight")
+plt.show()
+```
+### 5.3 Remote vs. On-Site Jobs
+```{python}
+import os
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+os.makedirs("figures", exist_ok=True)
+
+df = pd.read_csv("data/lightcast_job_postings.csv")
+
+# Clean the REMOTE_TYPE_NAME column
+df["REMOTE_TYPE_NAME"] = (
+    df["REMOTE_TYPE_NAME"]
+    .astype(str).str.strip().str.lower()
+    .replace({"[none]": None, "none": None, "unknown": None, "nan": None, "na": None, "null": None, "": None})
+)
+
+# Count each type
+remote_counts = df["REMOTE_TYPE_NAME"].value_counts()
+
+# Visual
+plt.figure(figsize=(6, 6))
+plt.pie(
+    remote_counts.values,
+    labels=remote_counts.index,
+    autopct="%1.1f%%",
+    startangle=90,
+    wedgeprops={"edgecolor": "white"}
+)
+plt.title("Remote vs. On-Site Job Distribution", fontsize=13)
+plt.tight_layout()
+plt.savefig("figures/remote_vs_onsite.png", dpi=300, bbox_inches="tight")
+plt.show()
 ```
