@@ -1,4 +1,5 @@
 ---
+---
 title: "Data Analysis"
 subtitle: "Comprehensive Data Cleaning & Exploratory Analysis of Job Market Trends"
 author:
@@ -21,29 +22,80 @@ format:
     toc: true
     number-sections: true
     df-print: paged
+execute:
+  echo: true
+  eval: true
+  freeze: false
+jupyter: python3
 ---
 
-# --- 4.0 Setup & Load ---
 
-import os, textwrap
+
+---
+
+## 4. Data Cleaning & Preprocessing
+
+In this section, we clean the Lightcast dataset, log each step, and save a reproducible cleaned CSV for downstream EDA.
+```{python}
+import os, datetime
+os.makedirs("logs", exist_ok=True)
+with open("logs/_ping.txt", "w", encoding="utf-8") as f:
+    f.write("hello @ " + str(datetime.datetime.now()) + "\n")
+print("WROTE: logs/_ping.txt")
+```
+
+```{python}
+# --- 4.0 Setup & Load (robust, fixed indent & order) ---
+
+import os, textwrap, datetime
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import missingno as msno
 
-# Paths 
+
+
+try:
+    import missingno as msno
+    HAS_MSNO = True
+except Exception:
+    HAS_MSNO = False
+
+# Paths
+
 DATA_PATH  = "data/lightcast_job_postings.csv"
 CLEAN_PATH = "data/cleaned_lightcast.csv"
 LOG_PATH   = "logs/cleaning_log.txt"
 FIG_MISS   = "figures/missing_values_heatmap.png"
 
+# Ensure output dirs exist
+
+os.makedirs("data", exist_ok=True)
 os.makedirs("logs", exist_ok=True)
 os.makedirs("figures", exist_ok=True)
 
+# Quick ping to prove Python chunk executes
+
+with open("logs/_ping.txt", "w", encoding="utf-8") as f:
+f.write("hello from python @ " + str(datetime.datetime.now()) + "\n")
+print("CWD:", os.getcwd())
+print("Wrote logs/_ping.txt")
+
+# Logging helper
+
 def log(msg: str):
+print(msg)
 with open(LOG_PATH, "a", encoding="utf-8") as f:
 f.write(msg.rstrip() + "\n")
-print(msg)
+
+# Start fresh log
+
+with open(LOG_PATH, "w", encoding="utf-8") as f:
+f.write("=== DATA CLEANING LOG START ===\n")
+
+# Check dataset exists BEFORE reading
+
+print("Files in ./data:", os.listdir("data"))
+assert os.path.exists(DATA_PATH), f"❌ Dataset not found at {DATA_PATH}"
 
 # Load data
 
@@ -63,11 +115,13 @@ df.drop(columns=columns_to_drop, inplace=True, errors="ignore")
 after_cols = df.shape[1]
 log(f"Dropped {before_cols - after_cols} columns; remaining columns: {after_cols}")
 
-# Normalize column names and basic types
+# Normalize names & basic types
 
 df.columns = [c.strip() for c in df.columns]
+
 if "POSTED" in df.columns:
 df["POSTED"] = pd.to_datetime(df["POSTED"], errors="coerce")
+
 if "Salary" in df.columns:
 df["Salary"] = pd.to_numeric(
 df["Salary"].astype(str).str.replace(r"[^0-9.-]", "", regex=True),
@@ -76,6 +130,7 @@ errors="coerce"
 
 # --- 4.2 Visualize & handle missing values ---
 
+if HAS_MSNO:
 plt.figure(figsize=(10,6))
 msno.heatmap(df)
 plt.title("Missing Values Heatmap", fontsize=14)
@@ -83,6 +138,8 @@ plt.tight_layout()
 plt.savefig(FIG_MISS, dpi=150)
 plt.show()
 log(f"Saved missingness heatmap → {FIG_MISS}")
+else:
+log("missingno not installed; skipping heatmap.")
 
 # Log top-20 missing columns
 
@@ -138,9 +195,8 @@ log(f"Clipped extreme Salary ({n_bad} rows) and refilled with median {med2:.2f}"
 df.to_csv(CLEAN_PATH, index=False)
 log(f"Saved cleaned dataset → {CLEAN_PATH}")
 
-summary = f"""
-Rows: {len(df):,}
-Columns: {df.shape[1]}
-Sample columns: {list(df.columns)[:12]}
-"""
-print(summary.strip())
+summary = f"Rows: {len(df):,}\nColumns: {df.shape[1]}\nSample columns: {list(df.columns)[:12]}"
+print(summary)
+log("✅ Cleaning pipeline finished successfully.")
+
+
