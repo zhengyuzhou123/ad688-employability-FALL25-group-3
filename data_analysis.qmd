@@ -83,9 +83,9 @@ print("Wrote logs/_ping.txt")
 # Logging helper
 
 def log(msg: str):
-print(msg)
-with open(LOG_PATH, "a", encoding="utf-8") as f:
-    f.write(msg.rstrip() + "\n")
+    print(msg)
+    with open(LOG_PATH, "a", encoding="utf-8") as f:
+        f.write(msg.rstrip() + "\n")
 
 # Start fresh log
 
@@ -100,8 +100,8 @@ assert os.path.exists(DATA_PATH), f"❌ Dataset not found at {DATA_PATH}"
 # Load data
 
 df = pd.read_csv(DATA_PATH, low_memory=False, on_bad_lines="skip")
-log(f"Loaded dataset → rows: {len(df):,}, cols: {df.shape[1]}")
-log(f"Columns (head): {list(df.columns)[:12]} ...")
+    log(f"Loaded dataset → rows: {len(df):,}, cols: {df.shape[1]}")
+    log(f"Columns (head): {list(df.columns)[:12]} ...")
 
 # --- 4.1 Drop redundant/irrelevant columns ---
 
@@ -113,8 +113,8 @@ columns_to_drop = [
 ]
 before_cols = df.shape[1]
 df.drop(columns=columns_to_drop, inplace=True, errors="ignore")
-after_cols = df.shape[1]
-log(f"Dropped {before_cols - after_cols} columns; remaining columns: {after_cols}")
+    after_cols = df.shape[1]
+    log(f"Dropped {before_cols - after_cols} columns; remaining columns: {after_cols}")
 
 # Normalize names & basic types
 
@@ -155,22 +155,22 @@ log(f"  - {col}: {pct:.1f}%")
 thresh = len(df) * 0.5
 before_cols = df.shape[1]
 df.dropna(axis=1, thresh=thresh, inplace=True)
-after_cols = df.shape[1]
-log(f"Dropped {before_cols - after_cols} high-missing columns (>50%). Remaining: {after_cols}")
+    after_cols = df.shape[1]
+    log(f"Dropped {before_cols - after_cols} high-missing columns (>50%). Remaining: {after_cols}")
 
 # Impute numeric
 
 if "Salary" in df.columns:
 med_salary = df["Salary"].median()
 df["Salary"].fillna(med_salary, inplace=True)
-log(f"Filled Salary NAs with median: {med_salary:.2f}")
+    log(f"Filled Salary NAs with median: {med_salary:.2f}")
 
 # Impute categorical
 
 for cat in ["Industry","REMOTE_TYPE_NAME","LOCATION"]:
 if cat in df.columns:
 df[cat] = df[cat].fillna("Unknown").astype(str).str.strip()
-log(f"Filled {cat} NAs with 'Unknown'")
+    log(f"Filled {cat} NAs with 'Unknown'")
 
 # --- 4.3 Remove duplicates ---
 
@@ -179,8 +179,8 @@ subset_cols = [c for c in ["TITLE","COMPANY","LOCATION","POSTED"] if c in df.col
 before = len(df)
 if subset_cols:
 df.drop_duplicates(subset=subset_cols, keep="first", inplace=True)
-after = len(df)
-log(f"Removed duplicates by {subset_cols}: {before - after} rows dropped; remaining: {after}")
+    after = len(df)
+    log(f"Removed duplicates by {subset_cols}: {before - after} rows dropped; remaining: {after}")
 
 # --- 4.4 Optional salary sanity filter ---
 
@@ -190,15 +190,15 @@ bad = (df["Salary"] < 1) | (df["Salary"] > 1_000_000)
 n_bad = int(bad.sum())
 if n_bad > 0:
 df.loc[bad, "Salary"] = np.nan
-med2 = df["Salary"].median()
+    med2 = df["Salary"].median()
 df["Salary"].fillna(med2, inplace=True)
-log(f"Clipped extreme Salary ({n_bad} rows) and refilled with median {med2:.2f}")
+    log(f"Clipped extreme Salary ({n_bad} rows) and refilled with median {med2:.2f}")
 
 # --- 4.5 Save & summary ---
 
 ```{python}
 df.to_csv(CLEAN_PATH, index=False)
-log(f"Saved cleaned dataset → {CLEAN_PATH}")
+    log(f"Saved cleaned dataset → {CLEAN_PATH}")
 
 summary = f"Rows: {len(df):,}\nColumns: {df.shape[1]}\nSample columns: {list(df.columns)[:12]}"
 print(summary)
