@@ -29,6 +29,7 @@ jupyter: python3
 
 In this section, we clean the Lightcast dataset, log each step, and save a reproducible cleaned CSV for downstream EDA.
 ```{python}
+#| echo: false
 # --- 0.0 Ensure dependencies are installed (for CI / Quarto Cloud) ---
 import sys, subprocess
 
