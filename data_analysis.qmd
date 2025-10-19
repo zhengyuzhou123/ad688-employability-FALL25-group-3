@@ -22,3 +22,125 @@ format:
     number-sections: true
     df-print: paged
 ---
+
+# --- 4.0 Setup & Load ---
+
+import os, textwrap
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import missingno as msno
+
+# Paths 
+DATA_PATH  = "data/lightcast_job_postings.csv"
+CLEAN_PATH = "data/cleaned_lightcast.csv"
+LOG_PATH   = "logs/cleaning_log.txt"
+FIG_MISS   = "figures/missing_values_heatmap.png"
+
+os.makedirs("logs", exist_ok=True)
+os.makedirs("figures", exist_ok=True)
+
+def log(msg: str):
+with open(LOG_PATH, "a", encoding="utf-8") as f:
+f.write(msg.rstrip() + "\n")
+print(msg)
+
+# Load data
+
+df = pd.read_csv(DATA_PATH, low_memory=False, on_bad_lines="skip")
+log(f"Loaded dataset → rows: {len(df):,}, cols: {df.shape[1]}")
+log(f"Columns (head): {list(df.columns)[:12]} ...")
+
+# --- 4.1 Drop redundant/irrelevant columns ---
+
+columns_to_drop = [
+"ID","URL","ACTIVE_URLS","DUPLICATES","LAST_UPDATED_TIMESTAMP",
+"NAICS2","NAICS3","NAICS4","NAICS5","NAICS6",
+"SOC_2","SOC_3","SOC_5"
+]
+before_cols = df.shape[1]
+df.drop(columns=columns_to_drop, inplace=True, errors="ignore")
+after_cols = df.shape[1]
+log(f"Dropped {before_cols - after_cols} columns; remaining columns: {after_cols}")
+
+# Normalize column names and basic types
+
+df.columns = [c.strip() for c in df.columns]
+if "POSTED" in df.columns:
+df["POSTED"] = pd.to_datetime(df["POSTED"], errors="coerce")
+if "Salary" in df.columns:
+df["Salary"] = pd.to_numeric(
+df["Salary"].astype(str).str.replace(r"[^0-9.-]", "", regex=True),
+errors="coerce"
+)
+
+# --- 4.2 Visualize & handle missing values ---
+
+plt.figure(figsize=(10,6))
+msno.heatmap(df)
+plt.title("Missing Values Heatmap", fontsize=14)
+plt.tight_layout()
+plt.savefig(FIG_MISS, dpi=150)
+plt.show()
+log(f"Saved missingness heatmap → {FIG_MISS}")
+
+# Log top-20 missing columns
+
+na_pct = df.isna().mean().sort_values(ascending=False) * 100
+log("Top-20 columns by missing%:")
+for col, pct in na_pct.head(20).items():
+log(f"  - {col}: {pct:.1f}%")
+
+# Drop columns with >50% missing
+
+thresh = len(df) * 0.5
+before_cols = df.shape[1]
+df.dropna(axis=1, thresh=thresh, inplace=True)
+after_cols = df.shape[1]
+log(f"Dropped {before_cols - after_cols} high-missing columns (>50%). Remaining: {after_cols}")
+
+# Impute numeric
+
+if "Salary" in df.columns:
+med_salary = df["Salary"].median()
+df["Salary"].fillna(med_salary, inplace=True)
+log(f"Filled Salary NAs with median: {med_salary:.2f}")
+
+# Impute categorical
+
+for cat in ["Industry","REMOTE_TYPE_NAME","LOCATION"]:
+if cat in df.columns:
+df[cat] = df[cat].fillna("Unknown").astype(str).str.strip()
+log(f"Filled {cat} NAs with 'Unknown'")
+
+# --- 4.3 Remove duplicates ---
+
+subset_cols = [c for c in ["TITLE","COMPANY","LOCATION","POSTED"] if c in df.columns]
+before = len(df)
+if subset_cols:
+df.drop_duplicates(subset=subset_cols, keep="first", inplace=True)
+after = len(df)
+log(f"Removed duplicates by {subset_cols}: {before - after} rows dropped; remaining: {after}")
+
+# --- 4.4 Optional salary sanity filter ---
+
+if "Salary" in df.columns:
+bad = (df["Salary"] < 1) | (df["Salary"] > 1_000_000)
+n_bad = int(bad.sum())
+if n_bad > 0:
+df.loc[bad, "Salary"] = np.nan
+med2 = df["Salary"].median()
+df["Salary"].fillna(med2, inplace=True)
+log(f"Clipped extreme Salary ({n_bad} rows) and refilled with median {med2:.2f}")
+
+# --- 4.5 Save & summary ---
+
+df.to_csv(CLEAN_PATH, index=False)
+log(f"Saved cleaned dataset → {CLEAN_PATH}")
+
+summary = f"""
+Rows: {len(df):,}
+Columns: {df.shape[1]}
+Sample columns: {list(df.columns)[:12]}
+"""
+print(summary.strip())
