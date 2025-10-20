@@ -307,7 +307,7 @@ plt.ylabel("Industry")
 plt.tight_layout()
 
 # save
-plt.savefig("figures/1average_salary_by_industry.png", dpi=300, bbox_inches="tight")
+plt.savefig("figures/average_salary_by_industry.png", dpi=300, bbox_inches="tight")
 plt.show()
 ```
 Across the top ten classified industries, average salaries cluster tightly between roughly $180k and $215k. “Polish and Other Sanitation Good Manufacturing” leads at about $215k, with “Travel Agencies” and “Battery Manufacturing” close behind (≈$200k+). Several capital-intensive niches—petrochemical, rubber/plastics, and irradiation apparatus manufacturing—sit in the upper-middle of the range (≈$195k–$205k), while service segments like “Web Search Portals,” “Hotels and Motels,” and “Agents for Wireless Telecommunications Services” anchor the lower end (≈$180k–$192k). Overall, manufacturing-oriented categories dominate the top, and the narrow spread suggests limited variation once unclassified roles are excluded.
@@ -321,7 +321,7 @@ import seaborn as sns
 
 os.makedirs("figures", exist_ok=True)
 
-df = pd.read_csv("data/lightcast_job_postings.csv", low_memory=False)
+df = pd.read_csv("data/cleaned_lightcast.csv", low_memory=False)
 
 # Clean the REMOTE_TYPE_NAME column
 df["REMOTE_TYPE_NAME"] = (
@@ -347,5 +347,5 @@ plt.tight_layout()
 plt.savefig("figures/remote_vs_onsite.png", dpi=300, bbox_inches="tight")
 plt.show()
 ```
-<<<<<<< HEAD
+
 The job market here is overwhelmingly remote: nearly four out of five postings (78.7%) are fully remote, while another 14.2% offer hybrid options. Only 7.1% require full on-site work. This mix signals strong employer flexibility and broad access to roles regardless of location, with hybrid emerging as a meaningful—but secondary—model. For candidates, remote-first skills (self-management, async collaboration) are likely at a premium, while fully on-site opportunities are comparatively scarce.
