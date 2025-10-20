@@ -76,7 +76,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-533b9ae3c010999c496e3372658dddf2.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-0b37c64f34216b628666a8dac638b53b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -218,7 +218,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="data-cleaning-preprocessing" class="level2" data-number="1">
 <h2 data-number="1" class="anchored" data-anchor-id="data-cleaning-preprocessing"><span class="header-section-number">1</span> Data Cleaning &amp; Preprocessing</h2>
 <p>In this section, we clean the Lightcast dataset, log each step, and save a reproducible cleaned CSV for downstream EDA.</p>
-<div id="c47a6e45" class="cell" data-execution_count="2">
+<div id="68f256ff" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os, datetime</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>os.makedirs(<span class="st">"logs"</span>, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">"logs/_ping.txt"</span>, <span class="st">"w"</span>, encoding<span class="op">=</span><span class="st">"utf-8"</span>) <span class="im">as</span> f:</span>
@@ -230,7 +230,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <section id="setup-load-clean-version" class="level3" data-number="1.1">
 <h3 data-number="1.1" class="anchored" data-anchor-id="setup-load-clean-version"><span class="header-section-number">1.1</span> Setup &amp; Load (clean version)</h3>
-<div id="54c088d5" class="cell" data-execution_count="3">
+<div id="b6dcf577" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os, datetime</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -293,7 +293,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="drop-redundantirrelevant-columns" class="level3" data-number="1.2">
 <h3 data-number="1.2" class="anchored" data-anchor-id="drop-redundantirrelevant-columns"><span class="header-section-number">1.2</span> Drop redundant/irrelevant columns</h3>
-<div id="6fea6079" class="cell" data-execution_count="4">
+<div id="ea28d719" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>columns_to_drop <span class="op">=</span> [</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="st">"ID"</span>,<span class="st">"URL"</span>,<span class="st">"ACTIVE_URLS"</span>,<span class="st">"DUPLICATES"</span>,<span class="st">"LAST_UPDATED_TIMESTAMP"</span>,</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="st">"NAICS2"</span>,<span class="st">"NAICS3"</span>,<span class="st">"NAICS4"</span>,<span class="st">"NAICS5"</span>,<span class="st">"NAICS6"</span>,</span>
@@ -323,7 +323,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="visualize-handle-missing-values" class="level3" data-number="1.3">
 <h3 data-number="1.3" class="anchored" data-anchor-id="visualize-handle-missing-values"><span class="header-section-number">1.3</span> Visualize &amp; handle missing values</h3>
-<div id="412ba201" class="cell" data-execution_count="5">
+<div id="00d4b35c" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> HAS_MSNO:</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="dv">6</span>))</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    msno.heatmap(df)</span>
@@ -404,7 +404,7 @@ Filled LOCATION NAs with 'Unknown'</code></pre>
 </section>
 <section id="remove-duplicates" class="level3" data-number="1.4">
 <h3 data-number="1.4" class="anchored" data-anchor-id="remove-duplicates"><span class="header-section-number">1.4</span> Remove duplicates</h3>
-<div id="688c5b82" class="cell" data-execution_count="6">
+<div id="dcdf46f7" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>subset_cols <span class="op">=</span> [c <span class="cf">for</span> c <span class="kw">in</span> [<span class="st">"TITLE"</span>,<span class="st">"COMPANY"</span>,<span class="st">"LOCATION"</span>,<span class="st">"POSTED"</span>] <span class="cf">if</span> c <span class="kw">in</span> df.columns]</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>before <span class="op">=</span> <span class="bu">len</span>(df)</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> subset_cols:</span>
@@ -418,7 +418,7 @@ Filled LOCATION NAs with 'Unknown'</code></pre>
 </section>
 <section id="optional-salary-sanity-filter" class="level3" data-number="1.5">
 <h3 data-number="1.5" class="anchored" data-anchor-id="optional-salary-sanity-filter"><span class="header-section-number">1.5</span> Optional salary sanity filter</h3>
-<div id="49a5b205" class="cell" data-execution_count="7">
+<div id="98e8cf3b" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="st">"Salary"</span> <span class="kw">in</span> df.columns:</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    bad <span class="op">=</span> (df[<span class="st">"Salary"</span>] <span class="op">&lt;</span> <span class="dv">1</span>) <span class="op">|</span> (df[<span class="st">"Salary"</span>] <span class="op">&gt;</span> <span class="dv">1_000_000</span>)</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    n_bad <span class="op">=</span> <span class="bu">int</span>(bad.<span class="bu">sum</span>())</span>
@@ -431,7 +431,7 @@ Filled LOCATION NAs with 'Unknown'</code></pre>
 </section>
 <section id="save-summary" class="level3" data-number="1.6">
 <h3 data-number="1.6" class="anchored" data-anchor-id="save-summary"><span class="header-section-number">1.6</span> Save &amp; summary</h3>
-<div id="5624ca87" class="cell" data-execution_count="8">
+<div id="6ef26646" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>df.to_csv(CLEAN_PATH, index<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>log(<span class="ss">f"Saved cleaned dataset → </span><span class="sc">{</span>CLEAN_PATH<span class="sc">}</span><span class="ss">"</span>)</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -458,7 +458,7 @@ In this section, we focus on three aspects: 1. Job postings by industry<br>
 <section id="job-postings-by-industry" class="level3" data-number="2.1">
 <h3 data-number="2.1" class="anchored" data-anchor-id="job-postings-by-industry"><span class="header-section-number">2.1</span> Job Postings by Industry</h3>
 <p>Understanding industry demand helps reveal which sectors are most active in hiring.</p>
-<div id="8ba23b6b" class="cell" data-execution_count="9">
+<div id="07d7b2df" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
@@ -499,10 +499,11 @@ In this section, we focus on three aspects: 1. Job postings by industry<br>
 </div>
 </div>
 </div>
+<p>Job demand is concentrated in tech and professional services: Custom Computer Programming Services leads, followed closely by Management Consulting, Employment Placement Agencies, and Computer Systems Design—each with ~4–5k postings. After these, volumes drop sharply to a second tier (Commercial Banking, CPA offices, Temporary Help, Health/Medical Insurance, Other Computer Services, Colleges/Universities) at ~1.3–2.0k. The prominence of staffing/placement agencies signals broad, economy-wide hiring, while the tech-heavy top ranks highlight sustained demand for digital and knowledge-worker skills.</p>
 </section>
 <section id="salary-distribution-by-industry" class="level3" data-number="2.2">
 <h3 data-number="2.2" class="anchored" data-anchor-id="salary-distribution-by-industry"><span class="header-section-number">2.2</span> Salary Distribution by Industry</h3>
-<div id="a99f9a7f" class="cell" data-execution_count="10">
+<div id="86fc960d" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
@@ -551,10 +552,11 @@ In this section, we focus on three aspects: 1. Job postings by industry<br>
 </div>
 </div>
 </div>
+<p>Across the top ten classified industries, average salaries cluster tightly between roughly $180k and $215k. “Polish and Other Sanitation Good Manufacturing” leads at about $215k, with “Travel Agencies” and “Battery Manufacturing” close behind (≈$200k+). Several capital-intensive niches—petrochemical, rubber/plastics, and irradiation apparatus manufacturing—sit in the upper-middle of the range (≈$195k–$205k), while service segments like “Web Search Portals,” “Hotels and Motels,” and “Agents for Wireless Telecommunications Services” anchor the lower end (≈$180k–$192k). Overall, manufacturing-oriented categories dominate the top, and the narrow spread suggests limited variation once unclassified roles are excluded.</p>
 </section>
 <section id="remote-vs.-on-site-jobs" class="level3" data-number="2.3">
 <h3 data-number="2.3" class="anchored" data-anchor-id="remote-vs.-on-site-jobs"><span class="header-section-number">2.3</span> Remote vs.&nbsp;On-Site Jobs</h3>
-<div id="3c948bd1" class="cell" data-execution_count="11">
+<div id="5e104476" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
@@ -595,6 +597,7 @@ In this section, we focus on three aspects: 1. Job postings by industry<br>
 </div>
 </div>
 </div>
+<p>The job market here is overwhelmingly remote: nearly four out of five postings (78.7%) are fully remote, while another 14.2% offer hybrid options. Only 7.1% require full on-site work. This mix signals strong employer flexibility and broad access to roles regardless of location, with hybrid emerging as a meaningful—but secondary—model. For candidates, remote-first skills (self-management, async collaboration) are likely at a premium, while fully on-site opportunities are comparatively scarce.</p>
 
 
 </section>
