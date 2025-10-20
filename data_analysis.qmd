@@ -259,6 +259,8 @@ plt.tight_layout()
 plt.savefig("figures/industry_postings.png", dpi=300)
 plt.show()
 ```
+Job demand is concentrated in tech and professional services: Custom Computer Programming Services leads, followed closely by Management Consulting, Employment Placement Agencies, and Computer Systems Design—each with ~4–5k postings. After these, volumes drop sharply to a second tier (Commercial Banking, CPA offices, Temporary Help, Health/Medical Insurance, Other Computer Services, Colleges/Universities) at ~1.3–2.0k. The prominence of staffing/placement agencies signals broad, economy-wide hiring, while the tech-heavy top ranks highlight sustained demand for digital and knowledge-worker skills.
+
 
 ### Salary Distribution by Industry
 ```{python}
@@ -303,6 +305,7 @@ plt.tight_layout()
 plt.savefig("figures/average_salary_by_industry.png", dpi=300, bbox_inches="tight")
 plt.show()
 ```
+Across the top ten classified industries, average salaries cluster tightly between roughly $180k and $215k. “Polish and Other Sanitation Good Manufacturing” leads at about $215k, with “Travel Agencies” and “Battery Manufacturing” close behind (≈$200k+). Several capital-intensive niches—petrochemical, rubber/plastics, and irradiation apparatus manufacturing—sit in the upper-middle of the range (≈$195k–$205k), while service segments like “Web Search Portals,” “Hotels and Motels,” and “Agents for Wireless Telecommunications Services” anchor the lower end (≈$180k–$192k). Overall, manufacturing-oriented categories dominate the top, and the narrow spread suggests limited variation once unclassified roles are excluded.
 
 ### Remote vs. On-Site Jobs
 ```{python}
@@ -339,3 +342,4 @@ plt.tight_layout()
 plt.savefig("figures/remote_vs_onsite.png", dpi=300, bbox_inches="tight")
 plt.show()
 ```
+The job market here is overwhelmingly remote: nearly four out of five postings (78.7%) are fully remote, while another 14.2% offer hybrid options. Only 7.1% require full on-site work. This mix signals strong employer flexibility and broad access to roles regardless of location, with hybrid emerging as a meaningful—but secondary—model. For candidates, remote-first skills (self-management, async collaboration) are likely at a premium, while fully on-site opportunities are comparatively scarce.
