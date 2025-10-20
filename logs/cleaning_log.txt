@@ -23,7 +23,9 @@ Top-20 columns by missing%:
   - MSA_OUTGOING: 5.4%
   - MSA_NAME_OUTGOING: 5.4%
   - MSA: 5.4%
-Dropped 10 high-missing columns (>50%). Remaining: 108
+Dropped 9 high-missing columns (>50%). Remaining: 109
+Filled & clipped Salary values with median = 116300.00
+Filled NAICS_2022_6_NAME NAs with 'Unknown'
 Filled REMOTE_TYPE_NAME NAs with 'Unknown'
 Filled LOCATION NAs with 'Unknown'
 Removed duplicates by ['TITLE', 'COMPANY', 'LOCATION', 'POSTED']: 3300 rows dropped; remaining: 69198

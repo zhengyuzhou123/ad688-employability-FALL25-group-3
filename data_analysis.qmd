@@ -4,6 +4,8 @@ title: "Data Analysis"
 subtitle: "Comprehensive Data Cleaning & Exploratory Analysis"
 author:
   - name: "Bingrui Qiao"
+  - name: "Zhengyu Zhou"
+  - name: "Junhao Wang"
     affiliations: "Boston University"
 bibliography: references.bib
 csl: csl/econometrica.csl
@@ -39,6 +41,7 @@ for pkg in ["gdown", "pandas", "matplotlib", "missingno", "pyarrow"]:
     subprocess.run([sys.executable, "-m", "pip", "install", pkg], check=False)
 ```
 ```{python}
+#| output: false
 import os, datetime
 os.makedirs("logs", exist_ok=True)
 with open("logs/_ping.txt", "w", encoding="utf-8") as f:
@@ -48,6 +51,7 @@ print("WROTE: logs/_ping.txt")
 
 ### Setup & Load (clean version)
 ```{python}
+#| output: false
 import os, datetime
 import numpy as np
 import pandas as pd
@@ -88,26 +92,24 @@ with open("logs/_ping.txt", "w", encoding="utf-8") as f:
 
 # AUTO-DOWNLOAD IF MISSING
 if not os.path.exists(DATA_PATH):
-    log(f"⚠️ Dataset missing at {DATA_PATH}. Attempting to download from Google Drive...")
     gdrive_url = "https://drive.google.com/uc?id=1V2GCHGt2dkFGqVBeoUFckU4IhUgk4ocQ"
     try:
         import gdown
         gdown.download(gdrive_url, DATA_PATH, quiet=False)
-        log("✅ Dataset downloaded successfully.")
     except Exception as e:
-        raise FileNotFoundError(f"❌ Could not download dataset.\nError: {e}")
+        raise FileNotFoundError(f"Could not download dataset.\nError: {e}")
 
 
 # Load data
 if not os.path.exists(DATA_PATH):
-    raise FileNotFoundError(f"❌ Dataset not found at {DATA_PATH}. Check path & working dir.")
+    raise FileNotFoundError(f"Dataset not found at {DATA_PATH}. Check path & working dir.")
 df = pd.read_csv(DATA_PATH, low_memory=False, on_bad_lines="skip")
 log(f"Loaded dataset → rows: {len(df):,}, cols: {df.shape[1]}")
 ```
 
 ### Drop redundant/irrelevant columns
 ```{python}
-
+#| output: false
 columns_to_drop = [
 "ID","URL","ACTIVE_URLS","DUPLICATES","LAST_UPDATED_TIMESTAMP",
 "NAICS2","NAICS3","NAICS4","NAICS5","NAICS6",
@@ -120,14 +122,14 @@ log(f"Dropped {before_cols - after_cols} columns; remaining columns: {after_cols
 
 # Normalize names & basic types
 
-df.columns = [c.strip() for c in df.columns]
+df.columns = df.columns.str.strip().str.upper()
 
 if "POSTED" in df.columns:
         df["POSTED"] = pd.to_datetime(df["POSTED"], errors="coerce")
 
-if "Salary" in df.columns:
-        df["Salary"] = pd.to_numeric(
-            df["Salary"].astype(str).str.replace(r"[^0-9.-]", "", regex=True),
+if "SALARY" in df.columns:
+        df["SALARY"] = pd.to_numeric(
+            df["SALARY"].astype(str).str.replace(r"[^0-9.-]", "", regex=True),
                 errors="coerce"
 )
 ```
@@ -157,20 +159,23 @@ for col, pct in na_pct.head(20).items():
 
 thresh = len(df) * 0.5
 before_cols = df.shape[1]
-df.dropna(axis=1, thresh=thresh, inplace=True)
+keep_cols = ["SALARY"]
+to_drop = [c for c in df.columns if df[c].isna().sum() > thresh and c not in keep_cols]
+df.drop(columns=to_drop, inplace=True)
 after_cols = df.shape[1]
 log(f"Dropped {before_cols - after_cols} high-missing columns (>50%). Remaining: {after_cols}")
 
 # Impute numeric
 
-if "Salary" in df.columns:
-    med_salary = df["Salary"].median()
-    df["Salary"].fillna(med_salary, inplace=True)
-    log(f"Filled Salary NAs with median: {med_salary:.2f}")
+if "SALARY" in df.columns:
+    med_salary = df["SALARY"].median(skipna=True)
+    df["SALARY"].fillna(med_salary, inplace=True)
+    df.loc[(df["SALARY"] < 1) | (df["SALARY"] > 1_000_000), "SALARY"] = med_salary
+    log(f"Filled & clipped Salary values with median = {med_salary:.2f}")
 
 # Impute categorical
 
-for cat in ["Industry","REMOTE_TYPE_NAME","LOCATION"]:
+for cat in ["NAICS_2022_6_NAME","REMOTE_TYPE_NAME","LOCATION"]:
     if cat in df.columns:
         df[cat] = df[cat].fillna("Unknown").astype(str).str.strip()
         log(f"Filled {cat} NAs with 'Unknown'")
@@ -178,7 +183,7 @@ for cat in ["Industry","REMOTE_TYPE_NAME","LOCATION"]:
 
 ### Remove duplicates
 ```{python}
-
+#| output: false
 subset_cols = [c for c in ["TITLE","COMPANY","LOCATION","POSTED"] if c in df.columns]
 before = len(df)
 if subset_cols:
@@ -190,19 +195,19 @@ if subset_cols:
 ### Optional salary sanity filter
 ```{python}
 
-if "Salary" in df.columns:
-    bad = (df["Salary"] < 1) | (df["Salary"] > 1_000_000)
+if "SALARY" in df.columns:
+    bad = (df["SALARY"] < 1) | (df["SALARY"] > 1_000_000)
     n_bad = int(bad.sum())
     if n_bad > 0:
-        df.loc[bad, "Salary"] = np.nan
-        med2 = df["Salary"].median()
-        df["Salary"].fillna(med2, inplace=True)
+        df.loc[bad, "SALARY"] = np.nan
+        med2 = df["SALARY"].median()
+        df["SALARY"].fillna(med2, inplace=True)
         log(f"Clipped extreme Salary ({n_bad} rows) and refilled with median {med2:.2f}")
 ```
 
 ### Save & summary
 ```{python}
-
+#| output: false
 df.to_csv(CLEAN_PATH, index=False)
 log(f"Saved cleaned dataset → {CLEAN_PATH}")
 
@@ -232,7 +237,7 @@ import seaborn as sns
 import os
 
 # Load dataset
-df = pd.read_csv("data/lightcast_job_postings.csv", low_memory=False)
+df = pd.read_csv("data/cleaned_lightcast.csv", low_memory=False)
 
 # Ensure /figures directory exists
 os.makedirs("figures", exist_ok=True)
@@ -271,7 +276,7 @@ import seaborn as sns
 
 os.makedirs("figures", exist_ok=True)
 
-df = pd.read_csv("data/lightcast_job_postings.csv", low_memory=False)
+df = pd.read_csv("data/cleaned_lightcast.csv", low_memory=False)
 
 # Define column names
 industry_col = "NAICS_2022_6_NAME"
@@ -279,7 +284,7 @@ salary_col = "SALARY"
 
 # Filter and clean salary
 df = df[df[salary_col] > 0]
-df = df[~df[industry_col].str.lower().str.contains("unclassified")]
+#df = df[~df[industry_col].str.lower().str.contains("unclassified")]
 
 # Compute average salary by industry
 avg_salary = (
@@ -302,7 +307,7 @@ plt.ylabel("Industry")
 plt.tight_layout()
 
 # save
-plt.savefig("figures/average_salary_by_industry.png", dpi=300, bbox_inches="tight")
+plt.savefig("figures/1average_salary_by_industry.png", dpi=300, bbox_inches="tight")
 plt.show()
 ```
 Across the top ten classified industries, average salaries cluster tightly between roughly $180k and $215k. “Polish and Other Sanitation Good Manufacturing” leads at about $215k, with “Travel Agencies” and “Battery Manufacturing” close behind (≈$200k+). Several capital-intensive niches—petrochemical, rubber/plastics, and irradiation apparatus manufacturing—sit in the upper-middle of the range (≈$195k–$205k), while service segments like “Web Search Portals,” “Hotels and Motels,” and “Agents for Wireless Telecommunications Services” anchor the lower end (≈$180k–$192k). Overall, manufacturing-oriented categories dominate the top, and the narrow spread suggests limited variation once unclassified roles are excluded.
@@ -342,4 +347,5 @@ plt.tight_layout()
 plt.savefig("figures/remote_vs_onsite.png", dpi=300, bbox_inches="tight")
 plt.show()
 ```
+<<<<<<< HEAD
 The job market here is overwhelmingly remote: nearly four out of five postings (78.7%) are fully remote, while another 14.2% offer hybrid options. Only 7.1% require full on-site work. This mix signals strong employer flexibility and broad access to roles regardless of location, with hybrid emerging as a meaningful—but secondary—model. For candidates, remote-first skills (self-management, async collaboration) are likely at a premium, while fully on-site opportunities are comparatively scarce.
