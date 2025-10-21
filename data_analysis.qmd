@@ -264,6 +264,8 @@ plt.tight_layout()
 plt.savefig("figures/industry_postings.png", dpi=300)
 plt.show()
 ```
+
+A bar chart was chosen to visualize the number of job postings across different industries. This format makes it easy to compare industry demand and helps job seekers understand which sectors have the highest hiring activity.
 Job demand is concentrated in tech and professional services: Custom Computer Programming Services leads, followed closely by Management Consulting, Employment Placement Agencies, and Computer Systems Design—each with ~4–5k postings. After these, volumes drop sharply to a second tier (Commercial Banking, CPA offices, Temporary Help, Health/Medical Insurance, Other Computer Services, Colleges/Universities) at ~1.3–2.0k. The prominence of staffing/placement agencies signals broad, economy-wide hiring, while the tech-heavy top ranks highlight sustained demand for digital and knowledge-worker skills.
 
 
@@ -310,7 +312,9 @@ plt.tight_layout()
 plt.savefig("figures/average_salary_by_industry.png", dpi=300, bbox_inches="tight")
 plt.show()
 ```
-Across the top ten classified industries, average salaries cluster tightly between roughly $180k and $215k. “Polish and Other Sanitation Good Manufacturing” leads at about $215k, with “Travel Agencies” and “Battery Manufacturing” close behind (≈$200k+). Several capital-intensive niches—petrochemical, rubber/plastics, and irradiation apparatus manufacturing—sit in the upper-middle of the range (≈$195k–$205k), while service segments like “Web Search Portals,” “Hotels and Motels,” and “Agents for Wireless Telecommunications Services” anchor the lower end (≈$180k–$192k). Overall, manufacturing-oriented categories dominate the top, and the narrow spread suggests limited variation once unclassified roles are excluded.
+
+Another bar chart was used to present the average salary across industries. Bar charts are effective for showing ranked values, making it easy to identify the highest-paying sectors and support data-driven career decisions.
+Average pay skews toward specialized, capital-intensive niches. Polish & Other Sanitation Good Manufacturing tops the list (~$215k), followed by Rubber & Plastics Hoses/Belting and Agents for Wireless Telecommunications Services (~$185–$200k). A middle tier includes Irradiation Apparatus and Misc. Waste Management (~$175–$185k), while Web Search Portals, Plastics Bag/Pouch, and transport/retail (Rail Support, Electronics & Appliance Retailers, Wineries) cluster near the lower bound (~$150–$165k). Overall, excluding unclassified roles, high salaries concentrate in specialized manufacturing and regulated services.
 
 ### Remote vs. On-Site Jobs
 ```{python}
@@ -348,4 +352,6 @@ plt.savefig("figures/remote_vs_onsite.png", dpi=300, bbox_inches="tight")
 plt.show()
 ```
 
-The job market here is overwhelmingly remote: nearly four out of five postings (78.7%) are fully remote, while another 14.2% offer hybrid options. Only 7.1% require full on-site work. This mix signals strong employer flexibility and broad access to roles regardless of location, with hybrid emerging as a meaningful—but secondary—model. For candidates, remote-first skills (self-management, async collaboration) are likely at a premium, while fully on-site opportunities are comparatively scarce.
+A pie chart was selected to display the proportions of job types (remote, hybrid, and on-site). This format offers an intuitive visual summary, helping job seekers understand the flexibility of job opportunities in 2024.
+
+The job market here is overwhelmingly remote: nearly four out of five postings (78.4%) are fully remote, while another 14.4% offer hybrid options. Only 7.3% require full on-site work. This mix signals strong employer flexibility and broad access to roles regardless of location, with hybrid emerging as a meaningful—but secondary—model. For candidates, remote-first skills (self-management, async collaboration) are likely at a premium, while fully on-site opportunities are comparatively scarce.
