@@ -137,48 +137,41 @@ if "SALARY" in df.columns:
 ### Visualize & handle missing values
 ```{python}
 
-if HAS_MSNO:
-    plt.figure(figsize=(10,6))
-    msno.heatmap(df)
-    plt.title("Missing Values Heatmap", fontsize=14)
+# --- Missing values correlation heatmap (like your classmate) ---
+
+cols_with_na = [c for c in df.columns if df[c].isna().any()]
+sub = df[cols_with_na]
+
+if len(cols_with_na) >= 2:
+    
+    if len(cols_with_na) > 25:
+        top_na_cols = sub.isna().mean().sort_values(ascending=False).head(25).index
+        sub = sub[top_na_cols]
+
+    
+    na_corr = sub.isna().astype(int).corr()
+
+    
+    mask = np.triu(np.ones_like(na_corr, dtype=bool))
+
+    plt.figure(figsize=(11, 8))
+    sns.heatmap(
+        na_corr, mask=mask, cmap="coolwarm", vmin=-1, vmax=1,
+        annot=True, fmt=".1f", linewidths=.5,
+        cbar_kws={"shrink": .8}
+    )
+    plt.title("Missing Values Correlation Heatmap", fontsize=14)
+    plt.xticks(rotation=45, ha="right", fontsize=8)
+    plt.yticks(rotation=0, fontsize=8)
     plt.tight_layout()
+
+    FIG_MISS = "figures/missing_values_corr_heatmap.png"
     plt.savefig(FIG_MISS, dpi=150)
     plt.show()
     log(f"Saved missingness heatmap → {FIG_MISS}")
 else:
-    log("missingno not installed; skipping heatmap.")
+    log("No columns with missing values; skipping heatmap.")
 
-# Log top-20 missing columns
-
-na_pct = df.isna().mean().sort_values(ascending=False) * 100
-log("Top-20 columns by missing%:")
-for col, pct in na_pct.head(20).items():
-    log(f"  - {col}: {pct:.1f}%")
-
-# Drop columns with >50% missing
-
-thresh = len(df) * 0.5
-before_cols = df.shape[1]
-keep_cols = ["SALARY"]
-to_drop = [c for c in df.columns if df[c].isna().sum() > thresh and c not in keep_cols]
-df.drop(columns=to_drop, inplace=True)
-after_cols = df.shape[1]
-log(f"Dropped {before_cols - after_cols} high-missing columns (>50%). Remaining: {after_cols}")
-
-# Impute numeric
-
-if "SALARY" in df.columns:
-    med_salary = df["SALARY"].median(skipna=True)
-    df["SALARY"].fillna(med_salary, inplace=True)
-    df.loc[(df["SALARY"] < 1) | (df["SALARY"] > 1_000_000), "SALARY"] = med_salary
-    log(f"Filled & clipped Salary values with median = {med_salary:.2f}")
-
-# Impute categorical
-
-for cat in ["NAICS_2022_6_NAME","REMOTE_TYPE_NAME","LOCATION"]:
-    if cat in df.columns:
-        df[cat] = df[cat].fillna("Unknown").astype(str).str.strip()
-        log(f"Filled {cat} NAs with 'Unknown'")
 ```
 
 ### Remove duplicates
