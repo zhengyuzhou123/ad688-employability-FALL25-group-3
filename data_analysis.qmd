@@ -58,6 +58,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import missingno as msno
 import subprocess
+import seaborn as sns
+
 
 # Handle missingno (optional)
 try:
