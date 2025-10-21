@@ -170,7 +170,7 @@ if len(cols_with_na) >= 2:
     FIG_MISS = "figures/missing_values_corr_heatmap.png"
     plt.savefig(FIG_MISS, dpi=150)
     plt.show()
-    log(f"Saved missingness heatmap → {FIG_MISS}")
+    
 else:
     log("No columns with missing values; skipping heatmap.")
 
