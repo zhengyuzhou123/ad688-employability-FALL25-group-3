@@ -81,19 +81,11 @@ plt.tight_layout()
 plt.savefig("figures/Skill_Gap_Analysis.png", dpi=300, bbox_inches="tight")
 plt.show()
 ```
+
 # Compare skill
 ```{python}
-# Load raw job postings data
+# Load data
 raw_df = pd.read_csv("data/cleaned_lightcast.csv")
-
-# Drop irrelevant columns
-columns_to_drop = [
-    "ID", "URL", "ACTIVE_URLS", "DUPLICATES", "LAST_UPDATED_TIMESTAMP",
-    "NAICS2", "NAICS3", "NAICS4", "NAICS5", "NAICS6",
-    "SOC_2", "SOC_3", "SOC_5"
-]
-valid_cols_to_drop = [col for col in columns_to_drop if col in raw_df.columns]
-raw_df.drop(columns=valid_cols_to_drop, inplace=True)
 
 # Count keyword occurrences
 top_skills = df_skills.columns.tolist()
@@ -104,28 +96,42 @@ skill_counts = {s: job_text.str.contains(s, case=False).sum() for s in top_skill
 df_skills.loc["Market Demand"] = [skill_counts[s] for s in top_skills]
 df_skills
 ```
+# Visual heatmap
 ```{python}
+import seaborn as sns
 import matplotlib.pyplot as plt
 
-# Team skill levels heatmap
-plt.figure(figsize=(6,2))
-plt.imshow(df_skills.iloc[:-1], aspect="auto")
+# Same style
+sns.set_theme(style="whitegrid", font_scale=1.1, rc={
+    "axes.facecolor": "white",
+    "figure.facecolor": "white",
+    "axes.edgecolor": "gray",
+    "grid.color": "lightgray"
+})
+
+
+cmap = sns.diverging_palette(220, 20, as_cmap=True)
+
+# Team Skill Levels
+plt.figure(figsize=(8, 2.5))
+plt.imshow(df_skills.iloc[:-1], aspect="auto", cmap=cmap)
 plt.colorbar(label="Skill Level (1–5)")
-plt.yticks(range(len(df_skills.index)-1), df_skills.index[:-1])
-plt.xticks(range(len(df_skills.columns)), df_skills.columns, rotation=45, ha="right")
-plt.title("Team Skill Levels")
+plt.yticks(range(len(df_skills.index)-1), df_skills.index[:-1], fontsize=10)
+plt.xticks(range(len(df_skills.columns)), df_skills.columns, rotation=30, ha="right", fontsize=9)
+plt.title("Team Skill Levels", fontsize=13, weight="bold")
 plt.tight_layout()
-plt.savefig("figures/Skill Gap Analysis.png", dpi=300, bbox_inches="tight")
+plt.savefig("figures/Team_Skill_Levels.png", dpi=300, bbox_inches="tight")
 plt.show()
 
-# Market demand heatmap
-plt.figure(figsize=(6,2))
-plt.imshow([df_skills.loc["Market Demand"]], aspect="auto")
+# Market Demand Heatmap
+plt.figure(figsize=(8, 2))
+plt.imshow([df_skills.loc["Market Demand"]], aspect="auto", cmap=cmap)
 plt.colorbar(label="Market Demand Count")
-plt.yticks([0], ["Market Demand"])
-plt.xticks(range(len(df_skills.columns)), df_skills.columns, rotation=45, ha="right")
-plt.title("Market Demand by Skill")
+plt.yticks([0], ["Market Demand"], fontsize=10)
+plt.xticks(range(len(df_skills.columns)), df_skills.columns, rotation=30, ha="right", fontsize=9)
+plt.title("Market Demand by Skill", fontsize=13, weight="bold")
 plt.tight_layout()
+plt.savefig("figures/Market_Demand.png", dpi=300, bbox_inches="tight")
 plt.show()
 ```
 
