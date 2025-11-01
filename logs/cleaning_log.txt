@@ -1,33 +1,3 @@
 === DATA CLEANING LOG START ===
 Loaded dataset → rows: 72,498, cols: 131
 Dropped 13 columns; remaining columns: 118
-Saved missingness heatmap → figures/missing_values_heatmap.png
-Top-20 columns by missing%:
-  - ACTIVE_SOURCES_INFO: 89.2%
-  - MAX_YEARS_EXPERIENCE: 88.4%
-  - MAX_EDULEVELS: 77.5%
-  - MAX_EDULEVELS_NAME: 77.5%
-  - LIGHTCAST_SECTORS: 75.5%
-  - LIGHTCAST_SECTORS_NAME: 75.5%
-  - SALARY: 57.5%
-  - SALARY_FROM: 55.3%
-  - SALARY_TO: 55.3%
-  - ORIGINAL_PAY_PERIOD: 55.3%
-  - DURATION: 37.7%
-  - MIN_YEARS_EXPERIENCE: 31.9%
-  - MODELED_DURATION: 26.6%
-  - MODELED_EXPIRED: 21.3%
-  - EXPIRED: 10.8%
-  - MSA_NAME_INCOMING: 5.5%
-  - MSA_INCOMING: 5.5%
-  - MSA_OUTGOING: 5.4%
-  - MSA_NAME_OUTGOING: 5.4%
-  - MSA: 5.4%
-Dropped 9 high-missing columns (>50%). Remaining: 109
-Filled & clipped Salary values with median = 116300.00
-Filled NAICS_2022_6_NAME NAs with 'Unknown'
-Filled REMOTE_TYPE_NAME NAs with 'Unknown'
-Filled LOCATION NAs with 'Unknown'
-Removed duplicates by ['TITLE', 'COMPANY', 'LOCATION', 'POSTED']: 3300 rows dropped; remaining: 69198
-Saved cleaned dataset → data/cleaned_lightcast.csv
-✅ Cleaning pipeline finished successfully.
