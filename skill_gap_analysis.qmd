@@ -1,0 +1,39 @@
+---
+title: "Skill Analysis"
+subtitle: "Skill Gap Analysis"
+author:
+  - name: "Bingrui Qiao"
+  - name: "Zhengyu Zhou"
+  - name: "Junhao Wang"
+    affiliations: "Boston University"
+bibliography: references.bib
+csl: csl/econometrica.csl
+format:
+  html:
+    toc: true
+    number-sections: true
+execute:
+  echo: true
+  eval: true
+  freeze: false
+  error: false
+  cache: false
+  enabled: !expr (os.getenv("CI", "false") != "true")
+jupyter: python3
+---
+
+```{python}
+import pandas as pd
+
+skills_data = {
+    "Name": ["Bingrui Qiao", "Zhengyu Zhou", "Junhao Wang"],
+    "Python": [2, 2, 3],
+    "SQL": [2, 2, 3],
+    "Machine Learning": [1, 1, 1],
+    "Cloud Computing": [2, 2, 3]
+}
+
+df_skills = pd.DataFrame(skills_data)
+df_skills.set_index("Name", inplace=True)
+df_skills
+```
