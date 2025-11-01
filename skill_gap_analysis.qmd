@@ -37,3 +37,16 @@ df_skills = pd.DataFrame(skills_data)
 df_skills.set_index("Name", inplace=True)
 df_skills
 ```
+```{python}
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(8, 6))
+sns.heatmap(df_skills, annot=True, cmap="coolwarm", linewidths=0.5)
+plt.title("Team Skill Levels Heatmap")
+
+
+plt.savefig("figures/Skill_Gap_Analysis.png", dpi=300, bbox_inches="tight")
+plt.show()
+
+```
