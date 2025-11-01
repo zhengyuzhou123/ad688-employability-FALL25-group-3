@@ -9,9 +9,9 @@ website:
         text: "Home"
       - href: introduction.qmd
         text: "Introduction"
-      - href: data_cleaning.qmd/ipynb
+      - href: data_cleaning.qmd
         text: "Data Cleaning & Exploration"
-      - href: eda.qmd/ipynb
+      - href: eda.qmd
         text: "Exploratory Data Analysis"
       - href: skill_gap_analysis.qmd/ipynb
         text: "Skill Gap Analysis"
