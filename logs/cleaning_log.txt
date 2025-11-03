@@ -1,3 +1,6 @@
 === DATA CLEANING LOG START ===
 Loaded dataset → rows: 72,498, cols: 131
 Dropped 13 columns; remaining columns: 118
+Removed duplicates by ['TITLE', 'COMPANY', 'LOCATION', 'POSTED']: 3300 rows dropped; remaining: 69198
+Saved cleaned dataset → data/cleaned_lightcast.csv
+✅ Cleaning pipeline finished successfully.
