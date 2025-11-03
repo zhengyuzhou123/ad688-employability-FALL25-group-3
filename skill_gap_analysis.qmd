@@ -120,7 +120,7 @@ plt.yticks(range(len(df_skills.index)-1), df_skills.index[:-1], fontsize=10)
 plt.xticks(range(len(df_skills.columns)), df_skills.columns, rotation=30, ha="right", fontsize=9)
 plt.title("Team Skill Levels", fontsize=13, weight="bold")
 plt.tight_layout()
-plt.savefig("figures/Team_Skill_Levels.png", dpi=300, bbox_inches="tight")
+plt.savefig("figures/Team_Skill_Level.png", dpi=300, bbox_inches="tight")
 plt.show()
 
 # Market Demand Heatmap
