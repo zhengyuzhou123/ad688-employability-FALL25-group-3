@@ -27,11 +27,11 @@ import pandas as pd
 
 skills_data = {
     "Name": ["Bingrui Qiao", "Zhengyu Zhou", "Junhao Wang"],
-    "Python": [2, 3, 3],
-    "SQL": [2, 3, 3],
+    "Python": [2, 2, 3],
+    "SQL": [2, 2, 3],
     "Machine Learning": [1, 1, 1],
     "Cloud Computing": [2, 2, 3],
-    "Docker": [1, 3, 1],
+    "Docker": [1, 1, 1],
     "AWS": [2, 3, 2]
 }
 
@@ -85,11 +85,11 @@ plt.show()
 # Compare skill
 ```{python}
 # Load data
-raw_df = pd.read_csv("data/cleaned_lightcast.csv")
+df = pd.read_csv("data/cleaned_lightcast.csv")
 
 # Count keyword occurrences
 top_skills = df_skills.columns.tolist()
-job_text = raw_df["BODY"].fillna("")
+job_text = df["BODY"].fillna("")
 skill_counts = {s: job_text.str.contains(s, case=False).sum() for s in top_skills}
 
 # Append demand row
@@ -129,19 +129,10 @@ plt.imshow([df_skills.loc["Market Demand"]], aspect="auto", cmap=cmap)
 plt.colorbar(label="Market Demand Count")
 plt.yticks([0], ["Market Demand"], fontsize=10)
 plt.xticks(range(len(df_skills.columns)), df_skills.columns, rotation=30, ha="right", fontsize=9)
-plt.title("Market Demand by Skill", fontsize=13, weight="bold")
+plt.title("Market Demand", fontsize=13, weight="bold")
 plt.tight_layout()
 plt.savefig("figures/Market_Demand.png", dpi=300, bbox_inches="tight")
 plt.show()
 ```
-
-Based on the heatmap comparison of each person’s self-ratings (1–3) against the market-demand scores (SQL and Machine Learning are hottest; Cloud/Docker mid; AWS/Python lower), here’s a concise, paragraph-style improvement plan:
-
-Bingrui Qiao should prioritize Machine Learning and SQL. Start with Kaggle’s “Intro to ML” + scikit-learn tutorials (train/validate linear/logistic/trees), then solve Mode SQL and LeetCode Database tracks to raise SQL from 2→3. Package one ML notebook into a small FastAPI service and containerize it to practice Docker basics (images, multi-stage build, docker run). Target two 90-minute focus blocks per week and submit progress as GitHub PRs for review. 
-
-Zhengyu Zhou is already strong in Python/SQL/Docker/AWS; the biggest gap is Machine Learning and, secondarily, Cloud architecture depth. Take Andrew Ng’s “Machine Learning Specialization,” then deploy a trained model as a container on AWS (ECS Fargate or Lambda + API Gateway). For Cloud (2→3), complete AWS Well-Architected + IAM/VPC labs and add IaC (SAM/CloudFormation/Terraform) to the repo. After each module, demo a working endpoint and post a runbook; ask a teammate for a security and cost review. 
-
-Junhao Wang is solid in Python/SQL/Cloud but needs Machine Learning and Docker. Follow fast.ai (first 2–3 lessons) or scikit-learn’s official guides to lift ML (1→2/3). In parallel, complete “Docker Get Started,” containerize a simple inference API, push to Amazon ECR, and run on ECS; add a GitHub Actions workflow to build/test/push on every PR. Aim for one 2-hour ML block and one 2-hour Docker/DevOps block weekly; measure success by latency/throughput of the deployed service and a clean CI pipeline.
-
 
 
