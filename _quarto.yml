@@ -15,9 +15,9 @@ website:
         text: "Exploratory Data Analysis"
       - href: skill_gap_analysis.qmd
         text: "Skill Gap Analysis"
-      - href: ml_methods.qmd/ipynb
+      - href: ml_methods.qmd
         text: "ML Methods"
-      - href: nlp_methods.qmd/ipynb
+      - href: nlp_methods.qmd
         text: "NLP Methods"
 format:
   html:
