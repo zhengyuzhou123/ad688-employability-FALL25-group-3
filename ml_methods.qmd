@@ -21,36 +21,142 @@ execute:
   enabled: !expr (os.getenv("CI", "false") != "true")
 jupyter: python3
 ---
-# Classification Model
+# Classification: Remote vs Non-Remote Jobs
 ```{python}
+#| echo: false
+#| output: false
+import sys, subprocess
+
+for pkg in ["gdown", "pandas", "matplotlib", "missingno", "pyarrow", "scikit-learn"]:
+    subprocess.run([sys.executable, "-m", "pip", "install", pkg], check=False)
+```
+```{python}
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import (
+    confusion_matrix,
+    accuracy_score,
+    classification_report
+)
 
-df = pd.read_csv("data/cleaned_lightcast.csv")
+# 1. Load the ORIGINAL Lightcast dataset
+#    (we do NOT use the cleaned subset here, because it only contains Remote jobs)
+raw_path = "data/lightcast_job_postings.csv"
+df_raw = pd.read_csv(raw_path, low_memory=False)
 
-df = df[df["REMOTE_TYPE_NAME"].isin(["Remote", "Hybrid", "Onsite"])]
+# 2. Clean the REMOTE_TYPE_NAME column
+df_raw["REMOTE_TYPE_NAME"] = (
+    df_raw["REMOTE_TYPE_NAME"]
+    .astype(str)
+    .str.strip()
+)
 
-X = df[["NAICS_2022_6_NAME", "STATE_NAME"]]
-y = df["REMOTE_TYPE_NAME"]
+print("Raw REMOTE_TYPE_NAME distribution (top 10):")
+print(df_raw["REMOTE_TYPE_NAME"].value_counts(dropna=False).head(10))
 
-preprocess = ColumnTransformer([
-    ("cat", OneHotEncoder(handle_unknown="ignore"), ["NAICS_2022_6_NAME", "STATE_NAME"])
-])
+# 3. Create a binary label: IS_REMOTE (1 = Remote-related, 0 = Non-Remote)
+df_raw["IS_REMOTE"] = df_raw["REMOTE_TYPE_NAME"].str.contains(
+    "remote", case=False, na=False
+).astype(int)
 
-model = Pipeline([
+print("\nIS_REMOTE value counts:")
+print(df_raw["IS_REMOTE"].value_counts())
+
+# If the data still has only one class, stop early to avoid model errors
+if df_raw["IS_REMOTE"].nunique() < 2:
+    raise ValueError(
+        "The dataset currently contains only one class for IS_REMOTE. "
+        "Classification is not possible with a single class."
+    )
+
+# 4. Select features (structured, geography + industry)
+feature_cols = ["NAICS_2022_6_NAME", "STATE_NAME"]
+
+for col in feature_cols:
+    df_raw[col] = df_raw[col].astype(str).str.strip()
+
+X = df_raw[feature_cols]
+y = df_raw["IS_REMOTE"]   # 0 = Non-Remote, 1 = Remote
+
+# 5. Train/Test split (stratify to keep class balance)
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.3,
+    random_state=42,
+    stratify=y
+)
+
+# 6. Preprocessing + Logistic Regression pipeline
+preprocess = ColumnTransformer(
+    transformers=[
+        ("cat", OneHotEncoder(handle_unknown="ignore"), feature_cols)
+    ]
+)
+
+clf = Pipeline(steps=[
     ("prep", preprocess),
-    ("lr", LogisticRegression(max_iter=200))
+    ("logreg", LogisticRegression(max_iter=300))
 ])
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+# 7. Fit the model
+clf.fit(X_train, y_train)
 
-model.fit(X_train, y_train)
-y_pred = model.predict(X_test)
+# 8. Predictions and evaluation metrics
+y_pred = clf.predict(X_test)
 
-print("Accuracy:", accuracy_score(y_test, y_pred))
-print(classification_report(y_test, y_pred))
+print(f"\nAccuracy (Remote vs Non-Remote): {accuracy_score(y_test, y_pred):.3f}\n")
+
+print("Classification report:\n")
+print(classification_report(
+    y_test,
+    y_pred,
+    target_names=["Non-Remote", "Remote"]
+))
+
+# 9. Confusion matrix plot (for the report)
+cm = confusion_matrix(y_test, y_pred)
+
+fig, ax = plt.subplots(figsize=(6, 6))
+
+# Heatmap
+sns.heatmap(
+    cm,
+    annot=True,
+    fmt="d",
+    cmap="Blues",
+    cbar=True,
+    cbar_kws={"shrink": 0.8},  
+    xticklabels=["Non-Remote", "Remote"],
+    yticklabels=["Non-Remote", "Remote"],
+    ax=ax
+)
+
+# Set the title and coordinate axes
+ax.set_title("Remote vs Non-Remote Job Classification", fontsize=16, weight="bold", pad=20)
+ax.set_xlabel("Predicted label", fontsize=12)
+ax.set_ylabel("True label", fontsize=12)
+
+# Set the colorbar label
+cbar = ax.collections[0].colorbar
+cbar.set_label("Count", rotation=270, labelpad=15)
+
+# layout
+fig.tight_layout()
+
+plt.savefig("figures/remote_confusion_matrix.png", dpi=300, bbox_inches="tight")
+plt.show()
+```
+
+This classifier can accurately identify most non-remote positions, but has difficulties in handling remote positions: many truly remote positions are wrongly classified as non-remote positions, indicating that merely relying on location and industry characteristics is not sufficient to capture the patterns suitable for remote work.
+
+#
+```{python}
 ```
