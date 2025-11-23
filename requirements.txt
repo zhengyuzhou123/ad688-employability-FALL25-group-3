@@ -3,3 +3,5 @@ numpy
 matplotlib
 missingno
 gdown
+seaborn
+scikit-learn
