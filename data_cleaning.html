@@ -148,11 +148,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="menu-text">Skill Gap Analysis</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./ml_methods.qmd/ipynb"> 
+    <a class="nav-link" href="./ml_methods.html"> 
 <span class="menu-text">ML Methods</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./nlp_methods.qmd/ipynb"> 
+    <a class="nav-link" href="./nlp_methods.qmd"> 
 <span class="menu-text">NLP Methods</span></a>
   </li>  
 </ul>
@@ -233,7 +233,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="data-cleaning-preprocessing" class="level2" data-number="1">
 <h2 data-number="1" class="anchored" data-anchor-id="data-cleaning-preprocessing"><span class="header-section-number">1</span> Data Cleaning &amp; Preprocessing</h2>
 <p>In this section, we clean the Lightcast dataset, log each step, and save a reproducible cleaned CSV for downstream EDA.</p>
-<div id="753164ed" class="cell" data-execution_count="2">
+<div id="8d10c07b" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os, datetime</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>os.makedirs(<span class="st">"logs"</span>, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">"logs/_ping.txt"</span>, <span class="st">"w"</span>, encoding<span class="op">=</span><span class="st">"utf-8"</span>) <span class="im">as</span> f:</span>
@@ -242,7 +242,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <section id="setup-load-clean-version" class="level3" data-number="1.1">
 <h3 data-number="1.1" class="anchored" data-anchor-id="setup-load-clean-version"><span class="header-section-number">1.1</span> Setup &amp; Load (clean version)</h3>
-<div id="a650e024" class="cell" data-execution_count="3">
+<div id="e882f3f2" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os, datetime</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -302,7 +302,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="drop-redundantirrelevant-columns" class="level3" data-number="1.2">
 <h3 data-number="1.2" class="anchored" data-anchor-id="drop-redundantirrelevant-columns"><span class="header-section-number">1.2</span> Drop redundant/irrelevant columns</h3>
-<div id="5c3ebf4b" class="cell" data-execution_count="4">
+<div id="45797430" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>columns_to_drop <span class="op">=</span> [</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="st">"ID"</span>,<span class="st">"URL"</span>,<span class="st">"ACTIVE_URLS"</span>,<span class="st">"DUPLICATES"</span>,<span class="st">"LAST_UPDATED_TIMESTAMP"</span>,</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="st">"NAICS2"</span>,<span class="st">"NAICS3"</span>,<span class="st">"NAICS4"</span>,<span class="st">"NAICS5"</span>,<span class="st">"NAICS6"</span>,</span>
@@ -329,7 +329,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="visualize-handle-missing-values" class="level3" data-number="1.3">
 <h3 data-number="1.3" class="anchored" data-anchor-id="visualize-handle-missing-values"><span class="header-section-number">1.3</span> Visualize &amp; handle missing values</h3>
-<div id="dff2a1ad" class="cell" data-execution_count="5">
+<div id="c6891a80" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Missing values correlation heatmap (like your classmate) ---</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>cols_with_na <span class="op">=</span> [c <span class="cf">for</span> c <span class="kw">in</span> df.columns <span class="cf">if</span> df[c].isna().<span class="bu">any</span>()]</span>
@@ -375,7 +375,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="remove-duplicates" class="level3" data-number="1.4">
 <h3 data-number="1.4" class="anchored" data-anchor-id="remove-duplicates"><span class="header-section-number">1.4</span> Remove duplicates</h3>
-<div id="783e0241" class="cell" data-execution_count="6">
+<div id="f80ac7b0" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>subset_cols <span class="op">=</span> [c <span class="cf">for</span> c <span class="kw">in</span> [<span class="st">"TITLE"</span>,<span class="st">"COMPANY"</span>,<span class="st">"LOCATION"</span>,<span class="st">"POSTED"</span>] <span class="cf">if</span> c <span class="kw">in</span> df.columns]</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>before <span class="op">=</span> <span class="bu">len</span>(df)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> subset_cols:</span>
@@ -386,7 +386,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="optional-salary-sanity-filter" class="level3" data-number="1.5">
 <h3 data-number="1.5" class="anchored" data-anchor-id="optional-salary-sanity-filter"><span class="header-section-number">1.5</span> Optional salary sanity filter</h3>
-<div id="f4033a09" class="cell" data-execution_count="7">
+<div id="3170e6fd" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="st">"SALARY"</span> <span class="kw">in</span> df.columns:</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    bad <span class="op">=</span> (df[<span class="st">"SALARY"</span>] <span class="op">&lt;</span> <span class="dv">1</span>) <span class="op">|</span> (df[<span class="st">"SALARY"</span>] <span class="op">&gt;</span> <span class="dv">1_000_000</span>)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    n_bad <span class="op">=</span> <span class="bu">int</span>(bad.<span class="bu">sum</span>())</span>
@@ -399,7 +399,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="save-summary" class="level3" data-number="1.6">
 <h3 data-number="1.6" class="anchored" data-anchor-id="save-summary"><span class="header-section-number">1.6</span> Save &amp; summary</h3>
-<div id="ad87e473" class="cell" data-execution_count="8">
+<div id="4c68bdf1" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>df.to_csv(CLEAN_PATH, index<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>log(<span class="ss">f"Saved cleaned dataset → </span><span class="sc">{</span>CLEAN_PATH<span class="sc">}</span><span class="ss">"</span>)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
