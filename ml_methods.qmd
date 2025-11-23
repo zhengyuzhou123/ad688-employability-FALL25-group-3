@@ -1,0 +1,56 @@
+---
+title: "Machine Learning Models for Geographic and Remote Work Analysis"
+subtitle: "KMeans Clustering, Salary Prediction, and Remote Work Classification"
+author:
+  - name: "Bingrui Qiao"
+  - name: "Zhengyu Zhou"
+  - name: "Junhao Wang"
+    affiliations: "Boston University"
+bibliography: references.bib
+csl: csl/econometrica.csl
+format:
+  html:
+    toc: true
+    number-sections: true
+execute:
+  echo: true
+  eval: true
+  freeze: false
+  error: false
+  cache: false
+  enabled: !expr (os.getenv("CI", "false") != "true")
+jupyter: python3
+---
+# Classification Model
+```{python}
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report
+
+df = pd.read_csv("data/cleaned_lightcast.csv")
+
+df = df[df["REMOTE_TYPE_NAME"].isin(["Remote", "Hybrid", "Onsite"])]
+
+X = df[["NAICS_2022_6_NAME", "STATE_NAME"]]
+y = df["REMOTE_TYPE_NAME"]
+
+preprocess = ColumnTransformer([
+    ("cat", OneHotEncoder(handle_unknown="ignore"), ["NAICS_2022_6_NAME", "STATE_NAME"])
+])
+
+model = Pipeline([
+    ("prep", preprocess),
+    ("lr", LogisticRegression(max_iter=200))
+])
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print(classification_report(y_test, y_pred))
+```
