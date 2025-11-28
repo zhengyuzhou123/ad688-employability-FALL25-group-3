@@ -160,3 +160,155 @@ This classifier can accurately identify most non-remote positions, but has diffi
 #
 ```{python}
 ```
+
+## Salary Regression: Impact of Geography and Remote Work
+
+In this section, we use a multiple linear regression model to predict job salary based on **geographic location (state)** and **remote work type**. This directly supports our topic of *Geographic and Remote Work Analysis* by quantifying how location and remote flexibility influence pay.
+
+```{python}
+import os
+import pandas as pd
+import numpy as np
+
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+
+import plotly.express as px
+
+# 1. Load cleaned dataset
+DATA_PATH = "data/cleaned_lightcast.csv"
+df = pd.read_csv(DATA_PATH, low_memory=False)
+
+print(f"Loaded rows: {len(df):,}, columns: {df.shape[1]}")
+
+# 2. Choose columns for the regression model
+# Try to find a state column
+if "STATE_NAME" in df.columns:
+    state_col = "STATE_NAME"
+elif "STATE" in df.columns:
+    state_col = "STATE"
+else:
+    raise ValueError("No state column found. Please check your dataset (STATE or STATE_NAME).")
+
+remote_col = "REMOTE_TYPE_NAME"
+salary_col = "SALARY"
+
+# 3. Basic cleaning: keep only useful columns and drop missing values
+df_reg = df[[salary_col, state_col, remote_col]].copy()
+
+# Clean remote type text
+df_reg[remote_col] = (
+    df_reg[remote_col]
+    .astype(str)
+    .str.strip()
+    .str.lower()
+)
+
+# Filter valid salary
+df_reg = df_reg[df_reg[salary_col] > 0].dropna()
+
+print(f"After filtering: {len(df_reg):,} rows")
+
+# Optional: sample to speed up rendering
+if len(df_reg) > 20000:
+    df_reg = df_reg.sample(n=20000, random_state=42)
+    print(f"Sampled to 20,000 rows for faster modeling.")
+
+# 4. Simplify remote type into three buckets
+def map_remote(x: str) -> str:
+    if "remote" in x:
+        return "remote"
+    if "hybrid" in x:
+        return "hybrid"
+    return "onsite"
+
+df_reg["REMOTE_SIMPLE"] = df_reg[remote_col].apply(map_remote)
+
+# 5. One-hot encode categorical variables
+model_df = df_reg[[salary_col, state_col, "REMOTE_SIMPLE"]].copy()
+model_df = pd.get_dummies(
+    model_df,
+    columns=[state_col, "REMOTE_SIMPLE"],
+    drop_first=True
+)
+
+X = model_df.drop(salary_col, axis=1)
+y = model_df[salary_col]
+
+print(f"Final feature columns: {X.shape[1]}")
+
+# 6. Train/test split (80/20)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# 7. Fit multiple linear regression
+reg = LinearRegression()
+reg.fit(X_train, y_train)
+
+y_pred = reg.predict(X_test)
+
+# 8. Evaluation metrics: RMSE & R²
+rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+r2 = r2_score(y_test, y_pred)
+
+print(f"RMSE: {rmse:,.2f}")
+print(f"R²:   {r2:,.3f}")
+```
+
+
+```{python}
+# 9. Coefficients as feature importance
+coef_df = (
+    pd.DataFrame({
+        "feature": X.columns,
+        "coefficient": reg.coef_
+    })
+    .sort_values("coefficient", ascending=False)
+)
+
+print(coef_df.head(10))
+```
+
+```{python}
+# 10. Plot feature importance (top 20 coefficients)
+
+top_n = 20
+
+top_coef = pd.concat([
+    coef_df.head(top_n),
+    coef_df.tail(top_n)
+])
+
+fig = px.bar(
+    top_coef,
+    x="coefficient",
+    y="feature",
+    orientation="h",
+    title="Top Positive and Negative Coefficients (Salary Regression)"
+)
+
+fig.update_layout(template="plotly_white")
+fig.show()
+```
+
+```{python}
+# 11. Actual vs Predicted salary scatter plot
+
+scatter_df = pd.DataFrame({
+    "Actual Salary": y_test,
+    "Predicted Salary": y_pred
+})
+
+fig2 = px.scatter(
+    scatter_df,
+    x="Actual Salary",
+    y="Predicted Salary",
+    title="Actual vs Predicted Salary",
+    trendline="ols"
+)
+
+fig2.update_layout(template="plotly_white")
+fig2.show()
+```
