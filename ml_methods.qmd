@@ -272,48 +272,57 @@ print(coef_df.head(10))
 ```
 
 ```{python}
-# 10. Plot feature importance (top 20 coefficients)
+# 10. Plot feature importance (top 20 coefficients) with Matplotlib
 
 top_n = 20
 
+#top20
 top_coef = pd.concat([
     coef_df.head(top_n),
     coef_df.tail(top_n)
 ])
 
-fig = px.bar(
-    top_coef,
-    x="coefficient",
-    y="feature",
-    orientation="h",
-    title="Top Positive and Negative Coefficients (Salary Regression)"
-)
+plt.figure(figsize=(8, 6))
+plt.barh(top_coef["feature"], top_coef["coefficient"])
+plt.axvline(0, color="black", linewidth=0.8)
+plt.title("Top Positive and Negative Coefficients (Salary Regression)")
+plt.xlabel("Coefficient")
+plt.ylabel("Feature")
+plt.tight_layout()
 
-fig.update_layout(template="plotly_white")
-fig.show()
-# Save PNG
-fig.write_image("figures/feature_importance.png", scale=2)
+# save png
+plt.savefig("figures/feature_importance.png", dpi=300, bbox_inches="tight")
+plt.show()
+
 ```
 
 ```{python}
-# 11. Actual vs Predicted salary scatter plot
+# 11. Actual vs Predicted salary scatter plot (Matplotlib)
 
 scatter_df = pd.DataFrame({
     "Actual Salary": y_test,
     "Predicted Salary": y_pred
 })
 
-fig2 = px.scatter(
-    scatter_df,
-    x="Actual Salary",
-    y="Predicted Salary",
-    title="Actual vs Predicted Salary",
-    trendline="ols"
+plt.figure(figsize=(6, 6))
+plt.scatter(
+    scatter_df["Actual Salary"],
+    scatter_df["Predicted Salary"],
+    alpha=0.4
 )
 
-fig2.update_layout(template="plotly_white")
-fig2.show()
+# drave
+min_val = min(scatter_df["Actual Salary"].min(), scatter_df["Predicted Salary"].min())
+max_val = max(scatter_df["Actual Salary"].max(), scatter_df["Predicted Salary"].max())
+plt.plot([min_val, max_val], [min_val, max_val], linestyle="--", linewidth=1)
 
-# Save PNG
-fig2.write_image("figures/actual_vs_predicted.png", scale=2)
+plt.title("Actual vs Predicted Salary")
+plt.xlabel("Actual Salary")
+plt.ylabel("Predicted Salary")
+plt.tight_layout()
+
+# save PNG
+plt.savefig("figures/actual_vs_predicted.png", dpi=300, bbox_inches="tight")
+plt.show()
+
 ```
