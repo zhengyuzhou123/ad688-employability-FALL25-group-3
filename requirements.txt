@@ -6,3 +6,4 @@ gdown
 seaborn
 scikit-learn
 plotly
+kaleido

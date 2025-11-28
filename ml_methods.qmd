@@ -291,6 +291,8 @@ fig = px.bar(
 
 fig.update_layout(template="plotly_white")
 fig.show()
+# Save PNG
+fig.write_image("figures/feature_importance.png", scale=2)
 ```
 
 ```{python}
@@ -311,4 +313,7 @@ fig2 = px.scatter(
 
 fig2.update_layout(template="plotly_white")
 fig2.show()
+
+# Save PNG
+fig2.write_image("figures/actual_vs_predicted.png", scale=2)
 ```
