@@ -1,37 +1,40 @@
----
-title: "Machine Learning Models for Geographic and Remote Work Analysis"
-subtitle: "KMeans Clustering, Salary Prediction, and Remote Work Classification"
-author:
-  - name: "Bingrui Qiao"
-  - name: "Zhengyu Zhou"
-  - name: "Junhao Wang"
-    affiliations: "Boston University"
-bibliography: references.bib
-csl: csl/econometrica.csl
-format:
-  html:
-    toc: true
-    number-sections: true
-execute:
-  echo: true
-  eval: true
-  freeze: false
-  error: false
-  cache: false
-  enabled: !expr (os.getenv("CI", "false") == "true")
-jupyter: python3
----
-# Classification: Remote vs Non-Remote Jobs
-```{python}
+# type: ignore
+# flake8: noqa
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
 #| echo: false
-#| output: true
 import sys, subprocess
 
 for pkg in ["gdown", "pandas", "matplotlib", "missingno", "pyarrow", "scikit-learn"]:
     subprocess.run([sys.executable, "-m", "pip", "install", pkg], check=False)
 ```
-```{python}
+#
 import pandas as pd
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -154,19 +157,19 @@ fig.tight_layout()
 plt.savefig("figures/remote_confusion_matrix.png", dpi=300, bbox_inches="tight")
 plt.show()
 
-```
-
-This classifier can accurately identify most non-remote positions, but has difficulties in handling remote positions: many truly remote positions are wrongly classified as non-remote positions, indicating that merely relying on location and industry characteristics is not sufficient to capture the patterns suitable for remote work.
-
 #
-```{python}
-```
-
-## Salary Regression: Impact of Geography and Remote Work
-
-In this section, we use a multiple linear regression model to predict job salary based on **geographic location (state)** and **remote work type**. This directly supports our topic of *Geographic and Remote Work Analysis* by quantifying how location and remote flexibility influence pay.
-
-```{python}
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
 import os
 import pandas as pd
 import numpy as np
@@ -174,6 +177,8 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
+
+import plotly.express as px
 
 # 1. Load cleaned dataset
 DATA_PATH = "data/cleaned_lightcast.csv"
@@ -254,10 +259,10 @@ r2 = r2_score(y_test, y_pred)
 
 print(f"RMSE: {rmse:,.2f}")
 print(f"R²:   {r2:,.3f}")
-```
-
-
-```{python}
+#
+#
+#
+#
 # 9. Coefficients as feature importance
 coef_df = (
     pd.DataFrame({
@@ -268,9 +273,9 @@ coef_df = (
 )
 
 print(coef_df.head(10))
-```
-
-```{python}
+#
+#
+#
 # 10. Plot feature importance (top 20 coefficients) with Matplotlib
 
 top_n = 20
@@ -293,9 +298,9 @@ plt.tight_layout()
 plt.savefig("figures/feature_importance.png", dpi=300, bbox_inches="tight")
 plt.show()
 
-```
-
-```{python}
+#
+#
+#
 # 11. Actual vs Predicted salary scatter plot (Matplotlib)
 
 scatter_df = pd.DataFrame({
@@ -324,4 +329,6 @@ plt.tight_layout()
 plt.savefig("figures/actual_vs_predicted.png", dpi=300, bbox_inches="tight")
 plt.show()
 
-```
+#
+#
+#
