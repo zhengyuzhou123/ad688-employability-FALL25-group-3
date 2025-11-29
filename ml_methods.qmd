@@ -24,7 +24,7 @@ jupyter: python3
 # Classification: Remote vs Non-Remote Jobs
 ```{python}
 #| echo: false
-#| output: true
+#| output: false
 import sys, subprocess
 
 for pkg in ["gdown", "pandas", "matplotlib", "missingno", "pyarrow", "scikit-learn"]:
