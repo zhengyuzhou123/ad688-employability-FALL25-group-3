@@ -1,0 +1,12 @@
+---
+title: "Geographic and Remote Work Analysis: Job Market 2024"
+author:
+  - "ZHENGYU ZHOU"
+  - "JUNHAO WANG"
+  - "BINGRUI QIAO"
+date: 09-27-2025
+format: html
+bibliography: references.bib
+csl: csl/econometrica.csl
+toc: true
+---
