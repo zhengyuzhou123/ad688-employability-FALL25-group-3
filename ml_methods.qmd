@@ -292,6 +292,23 @@ plt.show()
 
 ```
 
+## Feature Importance Analysis
+
+![Feature Importance](figures/feature_importance.png)
+
+Figure: Top Positive and Negative Coefficients — This plot highlights the
+features that most strongly influence predicted salary levels. Positive
+coefficients indicate factors associated with higher predicted salaries,
+while negative coefficients indicate factors associated with lower predicted
+salaries.
+
+The regression model shows that geographic differences play the largest role.
+States like Washington, D.C., California, and New York have strong positive
+coefficients, while states such as West Virginia and South Dakota show large
+negative coefficients. Remote/hybrid indicators have smaller effects relative
+to geography.
+
+
 ```{python}
 # 11. Actual vs Predicted salary scatter plot (Matplotlib)
 
@@ -322,3 +339,15 @@ plt.savefig("figures/actual_vs_predicted.png", dpi=300, bbox_inches="tight")
 plt.show()
 
 ```
+## Actual vs Predicted Salary
+
+![Actual vs Predicted](figures/actual_vs_predicted.png)
+
+Figure: Actual vs Predicted Salary — Scatter plot comparing true salary
+with model predictions. The dashed line represents perfect prediction (y = x).
+
+The prediction pattern shows that the model captures general salary trends,
+but underestimates extremely high salaries and compresses the overall range.
+This behavior is consistent with a moderate R² score and suggests that
+additional job-related variables (e.g., experience level, seniority) would
+improve model accuracy.
