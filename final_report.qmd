@@ -1,0 +1,34 @@
+     ---
+     title: "Evaluating Personal Job Market Prospects in 2024"
+     subtitle: "Final Report"
+     author:
+     - name: team3
+         affiliations:
+         - ref: BU
+         - ref: Boston
+     affiliations:
+     - id: BU
+         name: Boston University
+         city: Boston
+         state: MA
+     date: today
+     date-modified: today
+     date-format: long
+     format: 
+         docx: default
+     ---
+     
+# Introduction
+{{< include introduction.qmd >}}
+
+# Data Cleaning & Preprocessing
+{{< include data_analysis.qmd >}}
+
+# Skill Gap Analysis
+{{< include skill_gap_analysis.qmd >}}
+
+# Machine Learning Models
+{{< include ml_methods.qmd >}}
+
+# Final Analytics & Insights
+{{< include final_analytics.qmd >}}
