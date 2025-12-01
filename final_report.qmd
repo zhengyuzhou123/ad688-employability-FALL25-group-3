@@ -1,22 +1,25 @@
-     ---
-     title: "Evaluating Personal Job Market Prospects in 2024"
-     subtitle: "Final Report"
-     author:
-     - name: Team3
-         affiliations:
-         - ref: BU
-         - ref: Boston
-     affiliations:
-     - id: BU
-         name: Boston University
-         city: Boston
-         state: MA
-     date: today
-     date-modified: today
-     date-format: long
-     format: 
-         docx: default
-     ---
+---
+title: "Evaluating Personal Job Market Prospects in 2024"
+subtitle: "Final Report"
+
+author:
+  - name: "Team 3"
+    affiliations:
+      - ref: bu
+
+affiliations:
+  - id: bu
+    name: Boston University
+    city: Boston
+    state: MA
+
+date: today
+date-modified: today
+date-format: long
+
+format:
+  docx: default
+---
      
 # Introduction
 {{< include introduction.qmd >}}
