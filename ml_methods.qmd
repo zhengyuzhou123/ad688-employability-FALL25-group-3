@@ -158,11 +158,8 @@ plt.show()
 
 This classifier can accurately identify most non-remote positions, but has difficulties in handling remote positions: many truly remote positions are wrongly classified as non-remote positions, indicating that merely relying on location and industry characteristics is not sufficient to capture the patterns suitable for remote work.
 
-#
-```{python}
-```
 
-## Salary Regression: Impact of Geography and Remote Work
+# Salary Regression: Impact of Geography and Remote Work
 
 In this section, we use a multiple linear regression model to predict job salary based on **geographic location (state)** and **remote work type**. This directly supports our topic of *Geographic and Remote Work Analysis* by quantifying how location and remote flexibility influence pay.
 
