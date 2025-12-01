@@ -6,7 +6,7 @@
          affiliations:
          - ref: BU
          - ref: Boston
-     affiliations:
+    affiliations:
      - id: BU
          name: Boston University
          city: Boston
