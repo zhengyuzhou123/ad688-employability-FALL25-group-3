@@ -6,6 +6,7 @@ author:
   - name: "Team 3"
     affiliations:
       - ref: bu
+      - ref: boston
 
 affiliations:
   - id: bu
@@ -20,7 +21,7 @@ date-format: long
 format:
   docx: default
 ---
-     
+
 # Introduction
 {{< include introduction.qmd >}}
 
