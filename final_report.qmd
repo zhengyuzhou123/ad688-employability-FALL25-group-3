@@ -2,7 +2,7 @@
      title: "Evaluating Personal Job Market Prospects in 2024"
      subtitle: "Final Report"
      author:
-     - name: team3
+     - name: Team3
          affiliations:
          - ref: BU
          - ref: Boston
