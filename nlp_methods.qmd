@@ -1,6 +1,6 @@
 ```{python}
 #Process the BODY_lower colum for lamatization and tokenization
-nlp_data = nlp.data.withColum("BODY_processed", F.udf(preprocess_text, StringType())(F.col("BODY_"))
+nlp_data = nlp.data.withColum("BODY_processed", F.udf(preprocess_text, StringType()))(F.col("BODY_"))
 
 import pandas as pd
 #convert pandas dataframe for NLP processing
