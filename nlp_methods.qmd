@@ -1,19 +1,19 @@
 ```{python}
 #Process the BODY_lower colum for lamatization and tokenization
-nlp_data = nlp.data.withColum("BODY_processed", F.udf(preprocess_text, StringType()))(F.col("BODY_"))
+#nlp_data = nlp.data.withColum("BODY_processed", F.udf(preprocess_text, StringType()))(F.col("BODY_"))
 
-import pandas as pd
+#import pandas as pd
 #convert pandas dataframe for NLP processing
-nlp_data_pd = nlp_data.toPandas()
-nlp_data_pd.head()
+#nlp_data_pd = nlp_data.toPandas()
+#nlp_data_pd.head()
 
-lemmatizer = WordNetLemmatizer()
-stemmer = nltk.PorterStemmer()
+#lemmatizer = WordNetLemmatizer()
+#stemmer = nltk.PorterStemmer()
 
-lightcast_data['BODY_lemmatized'] = lightcast_data['Body_lower'].apply(lambda x: '', join([BODY_lemmatized]))
-lightcast_data['BODY_stemmer'] = lightcast_data['Body_lower'].apply(lambda x: '', join([BODY_stemmer]))
+#lightcast_data['BODY_lemmatized'] = lightcast_data['Body_lower'].apply(lambda x: '', join([BODY_lemmatized]))
+#lightcast_data['BODY_stemmer'] = lightcast_data['Body_lower'].apply(lambda x: '', join([BODY_stemmer]))
 
-;ightcast_data[['BODY_word_count', 'BODY_lematized','BODY_stemmed']].head()
+#;ightcast_data[['BODY_word_count', 'BODY_lematized','BODY_stemmed']].head()
 
 #create tf-idf matrix using skrlearn on the 
 ```
