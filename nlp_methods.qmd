@@ -91,7 +91,8 @@ generic_terms = {
     "client","process","year","project","ability","position","time","service","information",
     "description","requirement","employee","technical","benefit","customer","application",
     "need","required","preferred","must","strong","sap","skill","analyst","support","technology",
-    "opportunity","analysis","enterprise", "including","role","development", "status","full","program","tool","may","product","knowledge","company","report","new", "working","oracle","functional","related","provide","quality","implementation","id","help","day","pay","employer","reporting","based","applicant","detail","hour","employment","design", "industry","develop","lead","candidate","ensure","plan","disability"
+    "opportunity","analysis","enterprise", "including","role","development", "status","full","program","tool","may","product","knowledge","company","report","new", "working","oracle","functional","related","provide","quality","implementation","id","help","day","pay","employer","reporting","based","applicant","detail","hour","employment","design", "industry","develop","lead","candidate","ensure","plan","disability", "architecture","range",
+    "degree", "level","insight","user","practice","career","qualification","erp","paid"
 }
 
 filtered_terms = all_terms[~all_terms["term"].isin(generic_terms)]
@@ -113,7 +114,7 @@ wc = WordCloud(
     width=1200,
     height=600,
     background_color="white",
-    colormap="viridis",   # 可换：plasma, inferno, coolwarm
+    colormap="viridis",   
     prefer_horizontal=0.9
 ).generate_from_frequencies(word_freq)
 
