@@ -228,7 +228,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="classification-remote-vs-non-remote-jobs" class="level1" data-number="1">
 <h1 data-number="1"><span class="header-section-number">1</span> Classification: Remote vs Non-Remote Jobs</h1>
-<div id="88b5c0ea" class="cell" data-execution_count="2">
+<div id="14a9a52d" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
@@ -394,7 +394,7 @@ weighted avg       0.76      0.79      0.73     21750
 <section id="salary-regression-impact-of-geography-and-remote-work" class="level1" data-number="2">
 <h1 data-number="2"><span class="header-section-number">2</span> Salary Regression: Impact of Geography and Remote Work</h1>
 <p>In this section, we use a multiple linear regression model to predict job salary based on <strong>geographic location (state)</strong> and <strong>remote work type</strong>. This directly supports our topic of <em>Geographic and Remote Work Analysis</em> by quantifying how location and remote flexibility influence pay.</p>
-<div id="1c1067f4" class="cell" data-execution_count="3">
+<div id="e6d96cac" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -491,7 +491,7 @@ RMSE: 44,719.60
 R²:   0.010</code></pre>
 </div>
 </div>
-<div id="fd7f5d7e" class="cell" data-execution_count="4">
+<div id="10f7e0a5" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 9. Coefficients as feature importance</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>coef_df <span class="op">=</span> (</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    pd.DataFrame({</span>
@@ -516,7 +516,7 @@ R²:   0.010</code></pre>
 11       STATE_NAME_Illinois   7132.022318</code></pre>
 </div>
 </div>
-<div id="8a7b5e80" class="cell" data-execution_count="5">
+<div id="c22bec15" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 10. Plot feature importance (top 20 coefficients) with Matplotlib</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>top_n <span class="op">=</span> <span class="dv">20</span></span>
@@ -556,7 +556,7 @@ R²:   0.010</code></pre>
 </div>
 <p>Figure: Top Positive and Negative Coefficients — This plot highlights the features that most strongly influence predicted salary levels. Positive coefficients indicate factors associated with higher predicted salaries, while negative coefficients indicate factors associated with lower predicted salaries.</p>
 <p>The regression model shows that geographic differences play the largest role. States like Washington, D.C., California, and New York have strong positive coefficients, while states such as West Virginia and South Dakota show large negative coefficients. Remote/hybrid indicators have smaller effects relative to geography.</p>
-<div id="3795723a" class="cell" data-execution_count="6">
+<div id="05dfe27d" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 11. Actual vs Predicted salary scatter plot (Matplotlib)</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>scatter_df <span class="op">=</span> pd.DataFrame({</span>
