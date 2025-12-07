@@ -58,7 +58,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="site_libs/quarto-nav/headroom.min.js"></script>
 <script src="site_libs/clipboard/clipboard.min.js"></script>
 <script src="site_libs/quarto-search/autocomplete.umd.js"></script>
@@ -103,6 +103,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
 
 </head>
@@ -163,36 +166,303 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#basic-text-cleaning" id="toc-basic-text-cleaning" class="nav-link active" data-scroll-target="#basic-text-cleaning">2.Basic Text Cleaning</a></li>
+  <li><a href="#remove-filler-words" id="toc-remove-filler-words" class="nav-link" data-scroll-target="#remove-filler-words">3.Remove filler words</a></li>
+  <li><a href="#lemmatization" id="toc-lemmatization" class="nav-link" data-scroll-target="#lemmatization">4.Lemmatization</a></li>
+  <li><a href="#tf-idf-vectorization" id="toc-tf-idf-vectorization" class="nav-link" data-scroll-target="#tf-idf-vectorization">5.TF-IDF Vectorization</a></li>
+  <li><a href="#remove-meaningless-high-frequency-job-description-words" id="toc-remove-meaningless-high-frequency-job-description-words" class="nav-link" data-scroll-target="#remove-meaningless-high-frequency-job-description-words">6.Remove meaningless high-frequency job description words</a></li>
+  <li><a href="#create-wordcloud" id="toc-create-wordcloud" class="nav-link" data-scroll-target="#create-wordcloud">Create wordcloud</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content" id="quarto-document-content">
 
-
-
-
-<div id="719704e2" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Process the BODY_lower colum for lamatization and tokenization</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">#nlp_data = nlp.data.withColum("BODY_processed", F.udf(preprocess_text, StringType()))(F.col("BODY_"))</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">#import pandas as pd</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">#convert pandas dataframe for NLP processing</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">#nlp_data_pd = nlp_data.toPandas()</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">#nlp_data_pd.head()</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">#lemmatizer = WordNetLemmatizer()</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co">#stemmer = nltk.PorterStemmer()</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co">#lightcast_data['BODY_lemmatized'] = lightcast_data['Body_lower'].apply(lambda x: '', join([BODY_lemmatized]))</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co">#lightcast_data['BODY_stemmer'] = lightcast_data['Body_lower'].apply(lambda x: '', join([BODY_stemmer]))</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co">#;ightcast_data[['BODY_word_count', 'BODY_lematized','BODY_stemmed']].head()</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co">#create tf-idf matrix using skrlearn on the </span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">1.import and setup</h1>
 </div>
 
 
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div id="bdc19cb3" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> re</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> nltk</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> nltk.corpus <span class="im">import</span> stopwords</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> nltk.stem <span class="im">import</span> WordNetLemmatizer</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.feature_extraction.text <span class="im">import</span> TfidfVectorizer</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Download nltk assets</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>nltk.download(<span class="st">"stopwords"</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>nltk.download(<span class="st">"wordnet"</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>nltk.download(<span class="st">"omw-1.4"</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Load cleaned dataset</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>lightcast_data <span class="op">=</span> pd.read_csv(<span class="st">"data/cleaned_lightcast.csv"</span>, low_memory<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>lightcast_data[<span class="st">"BODY"</span>] <span class="op">=</span> lightcast_data[<span class="st">"BODY"</span>].fillna(<span class="st">""</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>[nltk_data] Downloading package stopwords to /home/runner/nltk_data...
+[nltk_data]   Package stopwords is already up-to-date!
+[nltk_data] Downloading package wordnet to /home/runner/nltk_data...
+[nltk_data]   Package wordnet is already up-to-date!
+[nltk_data] Downloading package omw-1.4 to /home/runner/nltk_data...
+[nltk_data]   Package omw-1.4 is already up-to-date!</code></pre>
+</div>
+</div>
+<section id="basic-text-cleaning" class="level1">
+<h1>2.Basic Text Cleaning</h1>
+<div id="df6a864d" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Lowercase</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>lightcast_data[<span class="st">"BODY_lower"</span>] <span class="op">=</span> lightcast_data[<span class="st">"BODY"</span>].<span class="bu">str</span>.lower()</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove non-letters and extra spaces</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>lightcast_data[<span class="st">"BODY_lower"</span>] <span class="op">=</span> lightcast_data[<span class="st">"BODY_lower"</span>].<span class="bu">apply</span>(</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">lambda</span> x: re.sub(<span class="vs">r"</span><span class="pp">[^a-z</span><span class="dv">\s</span><span class="pp">]</span><span class="vs">"</span>, <span class="st">" "</span>, x)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>lightcast_data[<span class="st">"BODY_lower"</span>] <span class="op">=</span> lightcast_data[<span class="st">"BODY_lower"</span>].<span class="bu">apply</span>(</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">lambda</span> x: re.sub(<span class="vs">r"</span><span class="dv">\s</span><span class="op">+</span><span class="vs">"</span>, <span class="st">" "</span>, x).strip()</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="remove-filler-words" class="level1">
+<h1>3.Remove filler words</h1>
+<div id="9850cb92" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>filler_words <span class="op">=</span> [</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"the"</span>,<span class="st">"is"</span>,<span class="st">"in"</span>,<span class="st">"and"</span>,<span class="st">"to"</span>,<span class="st">"of"</span>,<span class="st">"a"</span>,<span class="st">"for"</span>,<span class="st">"on"</span>,<span class="st">"with"</span>,<span class="st">"as"</span>,<span class="st">"by"</span>,<span class="st">"at"</span>,<span class="st">"an"</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"be"</span>,<span class="st">"this"</span>,<span class="st">"that"</span>,<span class="st">"it"</span>,<span class="st">"from"</span>,<span class="st">"or"</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>pattern <span class="op">=</span> <span class="vs">r'</span><span class="dv">\b</span>(?:<span class="vs">'</span> <span class="op">+</span> <span class="st">"|"</span>.join(filler_words) <span class="op">+</span> <span class="vs">r'</span><span class="er">)</span><span class="dv">\b</span><span class="vs">'</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>lightcast_data[<span class="st">"BODY_lower"</span>] <span class="op">=</span> lightcast_data[<span class="st">"BODY_lower"</span>].<span class="bu">str</span>.replace(pattern, <span class="st">" "</span>, regex<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>lightcast_data[<span class="st">"BODY_lower"</span>] <span class="op">=</span> lightcast_data[<span class="st">"BODY_lower"</span>].<span class="bu">str</span>.replace(<span class="vs">r"</span><span class="dv">\s</span><span class="op">+</span><span class="vs">"</span>, <span class="st">" "</span>, regex<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Word count</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>lightcast_data[<span class="st">"BODY_word_count"</span>] <span class="op">=</span> lightcast_data[<span class="st">"BODY_lower"</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: <span class="bu">len</span>(x.split()))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="lemmatization" class="level1">
+<h1>4.Lemmatization</h1>
+<div id="4ac88849" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>stop_words <span class="op">=</span> <span class="bu">set</span>(stopwords.words(<span class="st">"english"</span>))</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>lemmatizer <span class="op">=</span> WordNetLemmatizer()</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> preprocess_lemmatize(text):</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    tokens <span class="op">=</span> text.split()</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    tokens <span class="op">=</span> [w <span class="cf">for</span> w <span class="kw">in</span> tokens <span class="cf">if</span> w <span class="kw">not</span> <span class="kw">in</span> stop_words]</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    tokens <span class="op">=</span> [lemmatizer.lemmatize(w) <span class="cf">for</span> w <span class="kw">in</span> tokens]</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="st">" "</span>.join(tokens)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>lightcast_data[<span class="st">"BODY_lemmatized"</span>] <span class="op">=</span> lightcast_data[<span class="st">"BODY_lower"</span>].<span class="bu">apply</span>(preprocess_lemmatize)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="tf-idf-vectorization" class="level1">
+<h1>5.TF-IDF Vectorization</h1>
+<div id="d165e856" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>tfidf_vectorizer <span class="op">=</span> TfidfVectorizer(max_features<span class="op">=</span><span class="dv">10000</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>tfidf_matrix <span class="op">=</span> tfidf_vectorizer.fit_transform(lightcast_data[<span class="st">"BODY_lemmatized"</span>])</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>feature_names <span class="op">=</span> tfidf_vectorizer.get_feature_names_out()</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>tfidf_scores <span class="op">=</span> np.asarray(tfidf_matrix.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">0</span>)).ravel()</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>all_terms <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"term"</span>: feature_names,</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"importance"</span>: tfidf_scores</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>}).sort_values(<span class="st">"importance"</span>, ascending<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="remove-meaningless-high-frequency-job-description-words" class="level1">
+<h1>6.Remove meaningless high-frequency job description words</h1>
+<div id="6b36385a" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>generic_terms <span class="op">=</span> {</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"data"</span>,<span class="st">"experience"</span>,<span class="st">"business"</span>,<span class="st">"job"</span>,<span class="st">"work"</span>,<span class="st">"team"</span>,<span class="st">"solution"</span>,<span class="st">"management"</span>,<span class="st">"system"</span>,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"client"</span>,<span class="st">"process"</span>,<span class="st">"year"</span>,<span class="st">"project"</span>,<span class="st">"ability"</span>,<span class="st">"position"</span>,<span class="st">"time"</span>,<span class="st">"service"</span>,<span class="st">"information"</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"description"</span>,<span class="st">"requirement"</span>,<span class="st">"employee"</span>,<span class="st">"technical"</span>,<span class="st">"benefit"</span>,<span class="st">"customer"</span>,<span class="st">"application"</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"need"</span>,<span class="st">"required"</span>,<span class="st">"preferred"</span>,<span class="st">"must"</span>,<span class="st">"strong"</span>,<span class="st">"sap"</span>,<span class="st">"skill"</span>,<span class="st">"analyst"</span>,<span class="st">"support"</span>,<span class="st">"technology"</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"opportunity"</span>,<span class="st">"analysis"</span>,<span class="st">"enterprise"</span>, <span class="st">"including"</span>,<span class="st">"role"</span>,<span class="st">"development"</span>, <span class="st">"status"</span>,<span class="st">"full"</span>,<span class="st">"program"</span>,<span class="st">"tool"</span>,<span class="st">"may"</span>,<span class="st">"product"</span>,<span class="st">"knowledge"</span>,<span class="st">"company"</span>,<span class="st">"report"</span>,<span class="st">"new"</span>, <span class="st">"working"</span>,<span class="st">"oracle"</span>,<span class="st">"functional"</span>,<span class="st">"related"</span>,<span class="st">"provide"</span>,<span class="st">"quality"</span>,<span class="st">"implementation"</span>,<span class="st">"id"</span>,<span class="st">"help"</span>,<span class="st">"day"</span>,<span class="st">"pay"</span>,<span class="st">"employer"</span>,<span class="st">"reporting"</span>,<span class="st">"based"</span>,<span class="st">"applicant"</span>,<span class="st">"detail"</span>,<span class="st">"hour"</span>,<span class="st">"employment"</span>,<span class="st">"design"</span>, <span class="st">"industry"</span>,<span class="st">"develop"</span>,<span class="st">"lead"</span>,<span class="st">"candidate"</span>,<span class="st">"ensure"</span>,<span class="st">"plan"</span>,<span class="st">"disability"</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>filtered_terms <span class="op">=</span> all_terms[<span class="op">~</span>all_terms[<span class="st">"term"</span>].isin(generic_terms)]</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>top_keywords <span class="op">=</span> filtered_terms.head(<span class="dv">20</span>)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>top_keywords</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">term</th>
+<th data-quarto-table-cell-role="th">importance</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">454</th>
+<td>analytics</td>
+<td>1407.540441</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">617</th>
+<td>architecture</td>
+<td>1385.202281</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">1640</th>
+<td>cloud</td>
+<td>1351.994428</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">4730</th>
+<td>insurance</td>
+<td>1335.000934</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4202</th>
+<td>health</td>
+<td>1225.704218</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">5338</th>
+<td>location</td>
+<td>1153.550292</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">7306</th>
+<td>range</td>
+<td>1152.393071</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">2434</th>
+<td>degree</td>
+<td>1148.859162</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">8046</th>
+<td>security</td>
+<td>1135.234112</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">5228</th>
+<td>level</td>
+<td>1055.610320</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">3163</th>
+<td>environment</td>
+<td>1014.948480</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">8474</th>
+<td>sql</td>
+<td>1004.168204</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">7228</th>
+<td>qualification</td>
+<td>997.924938</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">8529</th>
+<td>state</td>
+<td>994.774118</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">313</th>
+<td>ai</td>
+<td>987.901993</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3607</th>
+<td>financial</td>
+<td>965.079915</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">6644</th>
+<td>performance</td>
+<td>939.683032</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1978</th>
+<td>consultant</td>
+<td>938.917781</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">1761</th>
+<td>communication</td>
+<td>929.598457</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">4691</th>
+<td>insight</td>
+<td>926.784147</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="create-wordcloud" class="level1">
+<h1>Create wordcloud</h1>
+<div id="d1a9bf83" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> wordcloud <span class="im">import</span> WordCloud</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert top keywords into a dictionary {term: importance}</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>word_freq <span class="op">=</span> <span class="bu">dict</span>(<span class="bu">zip</span>(top_keywords[<span class="st">"term"</span>], top_keywords[<span class="st">"importance"</span>]))</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the word cloud</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>wc <span class="op">=</span> WordCloud(</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    width<span class="op">=</span><span class="dv">1200</span>,</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    height<span class="op">=</span><span class="dv">600</span>,</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    background_color<span class="op">=</span><span class="st">"white"</span>,</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    colormap<span class="op">=</span><span class="st">"viridis"</span>,   <span class="co"># 可换：plasma, inferno, coolwarm</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    prefer_horizontal<span class="op">=</span><span class="fl">0.9</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>).generate_from_frequencies(word_freq)</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot it</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">7</span>))</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>plt.imshow(wc, interpolation<span class="op">=</span><span class="st">"bilinear"</span>)</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>plt.axis(<span class="st">"off"</span>)</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Top NLP Keywords from Job Descriptions"</span>, fontsize<span class="op">=</span><span class="dv">18</span>)</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a><span class="co">#save</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">"figures/WordCloud.png"</span>, dpi<span class="op">=</span><span class="dv">300</span>, bbox_inches<span class="op">=</span><span class="st">"tight"</span>)</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="nlp_methods_files/figure-html/cell-9-output-1.png" width="1252" height="662" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+
+
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
