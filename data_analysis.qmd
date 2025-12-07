@@ -272,8 +272,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-os.makedirs("figures", exist_ok=True)
-
 df = pd.read_csv("data/cleaned_lightcast.csv", low_memory=False)
 
 # Define column names
@@ -298,7 +296,7 @@ sns.boxplot(
     y=industry_col,
     x=salary_col,
     palette=palette,
-    showfliers=True,     # show outliers
+    showfliers=True,     # show outlier
     linewidth=1.2
 )
 
