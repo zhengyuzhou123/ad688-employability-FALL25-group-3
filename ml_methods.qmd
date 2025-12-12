@@ -68,12 +68,8 @@ df_analysis.head()
 
 ```{python}
 
-
-# 等价于 pyspark.trim(col("REMOTE_TYPE_NAME"))
 df_analysis["REMOTE_TYPE_NAME"] = df_analysis["REMOTE_TYPE_NAME"].astype(str).str.strip()
 
-# 注意：原始数据中有 [None] 这种字符串，PySpark 那里其实是 null，
-# 这里我们也当成 "None" 后按 Onsite 处理
 remote_col = df_analysis["REMOTE_TYPE_NAME"].replace({"[None]": None})
 
 df_analysis["REMOTE_GROUP"] = np.select(
@@ -89,9 +85,8 @@ df_analysis["REMOTE_GROUP"] = np.select(
 
 df_analysis.drop(columns=["REMOTE_TYPE_NAME"], inplace=True)
 
-# ============================================================
-# 3.2 EMPLOYMENT_GROUP
-# ============================================================
+
+# EMPLOYMENT_GROUP
 emp_col = df_analysis["EMPLOYMENT_TYPE_NAME"].astype(str).str.strip()
 
 df_analysis["EMPLOYMENT_GROUP"] = np.select(
@@ -107,12 +102,11 @@ df_analysis["EMPLOYMENT_GROUP"] = np.select(
 
 df_analysis.drop(columns=["EMPLOYMENT_TYPE_NAME"], inplace=True)
 
-# ============================================================
-# 3.3 MIN_YEARS_EXPERIENCE & 经验分组
-# ============================================================
+# MIN_YEARS_EXPERIENCE & group
+
 df_analysis["MIN_YEARS_EXPERIENCE"] = df_analysis["MIN_YEARS_EXPERIENCE"].fillna(0)
 
-# 先确保是数值型
+# make sure it is numerical
 df_analysis["MIN_YEARS_EXPERIENCE"] = pd.to_numeric(
     df_analysis["MIN_YEARS_EXPERIENCE"],
     errors="coerce"
@@ -132,19 +126,18 @@ df_analysis["MIN_YEARS_EXPERIENCE_GROUP"] = np.select(
     default="Internship/Entry Level"
 )
 
-# ============================================================
-# 3.4 DURATION：空值 & 0 -> 1
-# ============================================================
+
+# DURATION：null value & 0 -> 1
+
 dur = df_analysis["DURATION"]
 df_analysis["DURATION"] = (
     dur.fillna(1)
        .replace(0, 1)
 )
 
-# ============================================================
-# 3.5 清洗 EDUCATION_LEVELS_NAME -> EDUCATION_LEVELS_CLEAN
-# ============================================================
-# 等价于 regexp_replace + trim
+
+# clean EDUCATION_LEVELS_NAME -> EDUCATION_LEVELS_CLEAN
+
 edu_raw = df_analysis["EDUCATION_LEVELS_NAME"].fillna("")
 edu_clean = (
     edu_raw
@@ -155,15 +148,16 @@ edu_clean = (
 df_analysis["EDUCATION_LEVELS_CLEAN"] = edu_clean
 df_analysis.drop(columns=["EDUCATION_LEVELS_NAME"], inplace=True)
 
-# ============================================================
-# 3.6 填补 STATE_NAME / CITY_NAME 空值
-# ============================================================
+
+# Fill in the blank STATE_NAME/CITY_NAME
+
+
 df_analysis["STATE_NAME"] = df_analysis["STATE_NAME"].fillna("Unknown")
 df_analysis["CITY_NAME"] = df_analysis["CITY_NAME"].fillna("Unknown")
 
-# ============================================================
-# 3.7 ONET / ONET_NAME / NAICS2_NAME 空值处理
-# ============================================================
+
+# ONET/ONET_NAME/NAICS2_NAME null value handling
+
 df_analysis["ONET"] = df_analysis["ONET"].fillna("00-0000.00")
 df_analysis["ONET_NAME"] = df_analysis["ONET_NAME"].fillna("Unknown")
 df_analysis["NAICS2_NAME"] = df_analysis["NAICS2_NAME"].fillna("Unknown")
@@ -192,9 +186,6 @@ from sklearn.preprocessing import OneHotEncoder, LabelEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 
-# -----------------------------
-# 跟你 Spark 定义保持一致
-# -----------------------------
 categorical_cols = [
     "EMPLOYMENT_GROUP",
     "MIN_YEARS_EXPERIENCE_GROUP",
@@ -204,20 +195,20 @@ categorical_cols = [
 ]
 numeric_cols = ["MIN_YEARS_EXPERIENCE", "DURATION"]
 
-# 1. 生成 label（等价于 StringIndexer on REMOTE_GROUP）
-# 如果以后还会有 Hybrid，可以不手动 map，用 LabelEncoder 更保险
+# 1. create label
+
 label_encoder = LabelEncoder()
 df_binary["label"] = label_encoder.fit_transform(df_binary["REMOTE_GROUP"])
 
-# 看一下类别顺序，对应 Spark 里的 index 映射
+# Take a look at the category order
 print("Label mapping:", dict(zip(label_encoder.classes_,
                                  label_encoder.transform(label_encoder.classes_))))
 
-# 2. 生成 features（等价于 indexer + onehot + VectorAssembler）
+# 2. create features（indexer + onehot + VectorAssembler）
 X = df_binary[categorical_cols + numeric_cols]
 y = df_binary["label"]
 
-# ColumnTransformer = “分类变量做 OneHot，数值直接透传”
+# ColumnTransformer 
 preprocess = ColumnTransformer(
     transformers=[
         ("cat", OneHotEncoder(handle_unknown="ignore"), categorical_cols),
@@ -225,7 +216,6 @@ preprocess = ColumnTransformer(
     ]
 )
 
-# 只要特征工程的话可以单独 fit_transform
 X_features = preprocess.fit_transform(X)
 
 print("--- Prepared Data Preview (pandas + sklearn) ---")
@@ -234,17 +224,17 @@ print("X_features shape:", X_features.shape)
 print("First 5 labels:", y.iloc[:5].tolist())
 print("First 5 REMOTE_GROUP:", df_binary["REMOTE_GROUP"].iloc[:5].tolist())
 
-# 如果是稀疏矩阵（scipy.sparse），先转成 dense，方便塞进 DataFrame 一列里
+
 if hasattr(X_features, "toarray"):
     X_dense = X_features.toarray()
 else:
     X_dense = np.asarray(X_features)
 
-# 组一个和 Spark 类似的 df_prepared：REMOTE_GROUP | label | features
+
 df_prepared = pd.DataFrame({
     "REMOTE_GROUP": df_binary["REMOTE_GROUP"].reset_index(drop=True),
-    "label": y.reset_index(drop=True),     # 就是 df_binary["label"]
-    "features": list(X_dense)             # 每一行一个 numpy array
+    "label": y.reset_index(drop=True),     # df_binary["label"]
+    "features": list(X_dense)             # One for each line numpy array
 })
 
 print("\n--- df_prepared preview ---")
@@ -256,13 +246,11 @@ print(df_prepared.shape)
 ```{python}
 from sklearn.model_selection import train_test_split
 
-# df_prepared 里有 REMOTE_GROUP | label | features 三列
-# 这里先按行切 70/30，保持整体结构（跟 Spark 一样）
 
 train_data, test_data = train_test_split(
     df_prepared,
-    test_size=0.3,        # 30% 做 test，等价 [0.7, 0.3]
-    random_state=42,      # 等价 seed=42
+    test_size=0.3,        # 30% for test
+    random_state=42,      # seed=42
 )
 
 print(f"Training set size: {len(train_data)}")
@@ -274,24 +262,21 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 
-# 假设 train_data / test_data 是 pandas DataFrame，包含 columns: label, features
-# features 列里是 numpy array（前面我们已经这样构造过）
-
-# 1. 拆出 X / y
+# break out X / y
 X_train = np.stack(train_data["features"].to_numpy())   # shape: (n_train, n_features)
 y_train = train_data["label"].to_numpy()
 
 X_test  = np.stack(test_data["features"].to_numpy())
 y_test  = test_data["label"].to_numpy()
 
-# 2. Logistic Regression（对应 Spark 的 maxIter=10，可以给个大一点保证收敛）
+# Logistic Regression
 lr_model = LogisticRegression(
-    max_iter=1000,      # Spark 那个 10 次迭代很少，这里给足
+    max_iter=1000,      
     n_jobs=-1
 )
 lr_model.fit(X_train, y_train)
 
-# 3. Random Forest（对应 numTrees=100, seed=42）
+# Random Forest
 rf_model = RandomForestClassifier(
     n_estimators=100,   # = numTrees
     random_state=42,    # = seed
@@ -302,33 +287,31 @@ rf_model.fit(X_train, y_train)
 print("Both models trained successfully!")
 ```
 
+# Predict
 ```{python}
 import numpy as np
 from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
 
-# ============================
-# 先从 test_data 里取出 X_test / y_test
-# ============================
-# 如果你是用 df_prepared + train_test_split 得到的 train_data / test_data：
+
+# First extract X_test/y_test from test_data
 X_test = np.stack(test_data["features"].to_numpy())
 y_test = test_data["label"].to_numpy()
 
-# ============================
-# 预测：等价于 lr_model.transform(test_data)
-# ============================
+
+# Predict
+
 # Logistic Regression
 y_pred_lr = lr_model.predict(X_test)
 
-# 用 predict_proba 拿到正类概率，算 AUC（等价 Spark 的 rawPredictionCol + areaUnderROC）
+# Obtain the positive class probability using predict_proba and calculate the AUC
 y_proba_lr = lr_model.predict_proba(X_test)[:, 1]
 
 # Random Forest
 y_pred_rf = rf_model.predict(X_test)
 y_proba_rf = rf_model.predict_proba(X_test)[:, 1]
 
-# ============================
+
 # Evaluation：Accuracy / F1 / AUC-ROC
-# ============================
 from sklearn.metrics import f1_score
 
 print("LOGISTIC REGRESSION RESULTS")
@@ -367,6 +350,7 @@ cm_rf_df = pd.DataFrame(
 print(cm_rf_df)
 ```
 
+# confusion matrix
 ```{python}
 import numpy as np
 import pandas as pd
@@ -374,25 +358,22 @@ from sklearn.metrics import confusion_matrix
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-# 假设你已经有：
-# y_test, y_pred_lr, y_pred_rf
-# 且 label: 0 = Onsite, 1 = Remote
 
-# 1. 计算 confusion matrix（按 [0, 1] 顺序）
+# Calculate the confusion matrix (in the order of [0, 1])
 cm_lr = confusion_matrix(y_test, y_pred_lr, labels=[0, 1])
 cm_rf = confusion_matrix(y_test, y_pred_rf, labels=[0, 1])
 
 print("Logistic Regression CM:\n", cm_lr)
 print("Random Forest CM:\n", cm_rf)
 
-# 2. 转成 plotly 需要的 z（list of list）
+# The z (list of list) required for converting to plotly
 lr_z = cm_lr.tolist()
 rf_z = cm_rf.tolist()
 
 lr_x = ['Onsite', 'Remote']  # Predicted label
 lr_y = ['Onsite', 'Remote']  # True label
 
-# 3. 画图（结构和你原来一样）
+# Visual
 fig = make_subplots(
     rows=1, cols=2, 
     subplot_titles=('Logistic Regression', 'Random Forest')
@@ -439,6 +420,7 @@ fig.update_yaxes(title_text="True Label")
 fig.write_image("figures/confusion_matrix_comparison.jpg")
 ```
 
+# KMeans Clustering using ONET as reference label
 ```{python}
 # KMeans Clustering using ONET as reference label
 
@@ -453,9 +435,10 @@ onet_dist_df = (
 print(onet_dist_df.head(20))
 ```
 
+# Prepare features for KMeans clustering
 ```{python}
 # Prepare features for KMeans clustering
-# 1. 定义列（跟 PySpark 一样）
+# Define columns
 cluster_categorical_cols = [
     "EMPLOYMENT_GROUP",
     "MIN_YEARS_EXPERIENCE_GROUP",
@@ -465,10 +448,10 @@ cluster_categorical_cols = [
 ]
 cluster_numeric_cols = ["MIN_YEARS_EXPERIENCE", "DURATION"]
 
-# 2. 准备特征表 X（只包含用于聚类的列）
+# Prepare the feature table X (only including the columns used for clustering)
 X_cluster = df_analysis[cluster_categorical_cols + cluster_numeric_cols]
 
-# 3. ColumnTransformer = StringIndexer + OneHotEncoder + VectorAssembler 的组合
+# 3. ColumnTransformer = StringIndexer + OneHotEncoder + VectorAssembler
 cluster_preprocess = ColumnTransformer(
     transformers=[
         ("cat", OneHotEncoder(handle_unknown="ignore"), cluster_categorical_cols),
@@ -482,10 +465,9 @@ cluster_pipeline = Pipeline(
     ]
 )
 
-# 4. 拟合并生成 features 矩阵
+# Fit and merge to generate the features matrix
 X_cluster_features = cluster_pipeline.fit_transform(X_cluster)
 
-# 转成 dense，方便塞进 DataFrame 一列（如果你想保持 vector 风格）
 if hasattr(X_cluster_features, "toarray"):
     X_cluster_dense = X_cluster_features.toarray()
 else:
@@ -494,7 +476,7 @@ else:
 print("--- Clustering Features Shape ---")
 print(X_cluster_dense.shape)
 
-# 5. ONET_NAME -> ONET_label（等价于 StringIndexer on ONET_NAME）
+# 5. ONET_NAME -> ONET_label
 onet_le = LabelEncoder()
 df_analysis = df_analysis.copy()
 df_analysis["ONET_NAME"] = df_analysis["ONET_NAME"].fillna("Unknown")
@@ -504,7 +486,7 @@ print("ONET label mapping (first few):")
 for name, idx in list(zip(onet_le.classes_, range(len(onet_le.classes_))))[:10]:
     print(idx, "->", name)
 
-# 6. 组 df_cluster：ONET_NAME | ONET_label | features
+# 6. group df_cluster：ONET_NAME | ONET_label | features
 df_cluster = df_analysis.copy()
 df_cluster["features"] = list(X_cluster_dense)
 
@@ -513,13 +495,14 @@ print(df_cluster[["ONET_NAME", "ONET_label", "features"]].head())
 print(df_cluster.shape)
 ```
 
+# Find optimal K using Elbow Method
 ```{python}
 # Find optimal K using Elbow Method
 import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 
-# 从 df_cluster 里取出特征矩阵
+# Extract the feature matrix from the df_cluster
 X_cluster = np.stack(df_cluster["features"].to_numpy())   # shape: (n_samples, n_features)
 
 k_values = [3, 5, 7, 10, 15, 20]
@@ -529,48 +512,47 @@ print("--- Finding Optimal K ---")
 for k in k_values:
     kmeans = KMeans(
         n_clusters=k,
-        random_state=42,    # 对应 seed=42
-        n_init="auto"       # 或者设成具体数值，比如 10
+        random_state=42,    # seed = 42
+        n_init="auto"      
     )
-    # 相当于 Spark 的 model.transform(df_cluster).select("prediction")
     labels = kmeans.fit_predict(X_cluster)
 
-    # 等价于 ClusteringEvaluator(..., metricName='silhouette')
     score = silhouette_score(X_cluster, labels)
     silhouette_scores.append(score)
 
     print(f"K = {k}: Silhouette Score = {score:.4f}")
 ```
 
+# Extract the feature matrix
 ```{python}
 import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 
-# 1. 取出特征矩阵
+# Extract the feature matrix
 X_cluster = np.stack(df_cluster["features"].to_numpy())  # shape: (n_samples, n_features)
 
-# 2. 训练最终 KMeans 模型
+# Train the final KMeans model
 optimal_k = 3
 
 kmeans_final = KMeans(
     n_clusters=optimal_k,
-    random_state=42,   # 对应 seed=42
+    random_state=42,   # seed = 42
     n_init="auto"
 )
 
-cluster_labels = kmeans_final.fit_predict(X_cluster)  # 相当于 transform 得到 prediction/cluster
+cluster_labels = kmeans_final.fit_predict(X_cluster)  
 
-# 3. 把 cluster 写回 DataFrame
+# Write the cluster back to the DataFrame
 df_clustered = df_cluster.copy()
-df_clustered["cluster"] = cluster_labels   # label 0..K-1，等价 Spark 的 cluster 列
+df_clustered["cluster"] = cluster_labels   
 
-# 4. 计算最终 silhouette（等价 evaluator.evaluate(...)）
+# 4. calculate silhouette
 final_score = silhouette_score(X_cluster, cluster_labels)
 print(f"\n--- Final KMeans Model (K={optimal_k}) ---")
 print(f"Silhouette Score: {final_score:.4f}")
 
-# 5. Cluster 分布（等价 groupBy("cluster").count().orderBy("cluster")）
+# Cluster Distribution
 print("\n--- Cluster Distribution ---")
 print(
     df_clustered["cluster"]
@@ -579,8 +561,8 @@ print(
 )
 ```
 
-```{python}
 # Analyze clusters vs ONET reference labels
+```{python}
 
 # Cross-tabulation of clusters and ONET
 print("--- Top ONET categories in each cluster ---")
@@ -611,7 +593,6 @@ remote_by_cluster = (
 )
 print(remote_by_cluster)
 
-# 如果你想看更像交叉表（行=cluster，列=REMOTE_GROUP）：
 remote_pivot = remote_by_cluster.pivot(
     index="cluster",
     columns="REMOTE_GROUP",
@@ -656,22 +637,22 @@ for cluster_id in range(optimal_k):
 import pandas as pd
 import plotly.express as px
 
-# 1. 先拿到 cluster 频数（Series）
+# obtain the cluster frequency
 cluster_counts_series = (
     df_clustered["cluster"]
     .value_counts()
     .sort_index()
 )
 
-# 2. 明确建一个只有 "cluster", "count" 两列的 DataFrame
+# Clearly create a DataFrame with only two columns, "cluster" and "count"
 cluster_counts = pd.DataFrame({
     "cluster": cluster_counts_series.index,
     "count": cluster_counts_series.values
 })
 
-print(cluster_counts)  # 检查列名是否 ['cluster', 'count']
+print(cluster_counts)  # Check if the column names are ['cluster', 'count']
 
-# 3. 画图
+# Visual
 fig = px.bar(
     cluster_counts,
     x="cluster",
@@ -711,8 +692,8 @@ cluster_counts = (
 fig = px.bar(
     x=cluster_counts.index,
     y=cluster_counts.values,
-    color=cluster_counts.values,          # 用数量做颜色映射
-    color_continuous_scale="Blues",       # 就是那条蓝色渐变
+    color=cluster_counts.values,          
+    color_continuous_scale="Blues",      
     labels={"x": "Cluster", "y": "Number of Jobs", "color": "Number of Jobs"},
     title="KMeans Clustering: Distribution of Jobs Across Clusters",
     template="plotly_white",
@@ -731,7 +712,7 @@ import numpy as np
 
 # Calculate remote work percentage by state (pandas version)
 
-# 1. 先按 STATE_NAME & REMOTE_GROUP 计数（等价 groupBy + count）
+# 1.STATE_NAME & REMOTE_GROUP
 state_remote = (
     df_analysis
     .groupby(["STATE_NAME", "REMOTE_GROUP"])
@@ -739,7 +720,7 @@ state_remote = (
     .reset_index(name="count")
 )
 
-# 2. pivot：行 = STATE_NAME，列 = REMOTE_GROUP（Onsite / Remote / Hybrid）
+# 2. pivot：index = STATE_NAME，columns = REMOTE_GROUP（Onsite / Remote / Hybrid）
 state_df = (
     state_remote
     .pivot(index="STATE_NAME", columns="REMOTE_GROUP", values="count")
@@ -747,11 +728,11 @@ state_df = (
     .reset_index()
 )
 
-# 3. 确保 Hybrid 这一列存在（防止有的 data 没 Hybrid 就 KeyError）
+# Ensure that the "Hybrid" column exists
 if "Hybrid" not in state_df.columns:
     state_df["Hybrid"] = 0
 
-# 4. 计算 Total 和 Remote_Pct
+# Calculate Total and Remote_Pct
 state_df["Total"] = state_df["Onsite"] + state_df["Remote"] + state_df["Hybrid"]
 state_df["Remote_Pct"] = (state_df["Remote"] / state_df["Total"] * 100).round(2)
 
@@ -901,7 +882,7 @@ state_df_filtered = state_df_clean[state_df_clean['Total'] >= 100]
 # Sort by remote percentage
 top_remote_states = state_df_filtered.nlargest(10, 'Remote_Pct')
 
-fig3 = px.bar(
+fig = px.bar(
     top_remote_states,
     x='STATE_NAME',
     y='Remote_Pct',
@@ -912,8 +893,8 @@ fig3 = px.bar(
     text='Remote_Pct'
 )
 
-fig3.update_traces(texttemplate='%{text:.1f}%', textposition='outside')
-fig3.update_layout(
+fig.update_traces(texttemplate='%{text:.1f}%', textposition='outside')
+fig.update_layout(
     template='plotly_white',
     font=dict(family="Roboto", size=14),
     xaxis_tickangle=-45,
@@ -924,64 +905,3 @@ fig.write_image("figures/top10_remote_states.jpg")
 print("Top 10 remote states bar chart saved!")
 fig
 ```
-
-```{python}
-## Feature Importance Analysis
-
-![Feature Importance](figures/feature_importance.png)
-
-Figure: Top Positive and Negative Coefficients — This plot highlights the
-features that most strongly influence predicted salary levels. Positive
-coefficients indicate factors associated with higher predicted salaries,
-while negative coefficients indicate factors associated with lower predicted
-salaries.
-
-The regression model shows that geographic differences play the largest role.
-States like Washington, D.C., California, and New York have strong positive
-coefficients, while states such as West Virginia and South Dakota show large
-negative coefficients. Remote/hybrid indicators have smaller effects relative
-to geography.
-
-
-```{python}
-# 11. Actual vs Predicted salary scatter plot (Matplotlib)
-
-scatter_df = pd.DataFrame({
-    "Actual Salary": y_test,
-    "Predicted Salary": y_pred
-})
-
-plt.figure(figsize=(6, 6))
-plt.scatter(
-    scatter_df["Actual Salary"],
-    scatter_df["Predicted Salary"],
-    alpha=0.4
-)
-
-# drave
-min_val = min(scatter_df["Actual Salary"].min(), scatter_df["Predicted Salary"].min())
-max_val = max(scatter_df["Actual Salary"].max(), scatter_df["Predicted Salary"].max())
-plt.plot([min_val, max_val], [min_val, max_val], linestyle="--", linewidth=1)
-
-plt.title("Actual vs Predicted Salary")
-plt.xlabel("Actual Salary")
-plt.ylabel("Predicted Salary")
-plt.tight_layout()
-
-# save PNG
-plt.savefig("figures/actual_vs_predicted.png", dpi=300, bbox_inches="tight")
-plt.show()
-
-```
-## Actual vs Predicted Salary
-
-![Actual vs Predicted](figures/actual_vs_predicted.png)
-
-Figure: Actual vs Predicted Salary — Scatter plot comparing true salary
-with model predictions. The dashed line represents perfect prediction (y = x).
-
-The prediction pattern shows that the model captures general salary trends,
-but underestimates extremely high salaries and compresses the overall range.
-This behavior is consistent with a moderate R² score and suggests that
-additional job-related variables (e.g., experience level, seniority) would
-improve model accuracy.
