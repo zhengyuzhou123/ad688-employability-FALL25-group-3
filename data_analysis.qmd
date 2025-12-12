@@ -359,3 +359,71 @@ plt.show()
 A pie chart was selected to display the proportions of job types (remote, hybrid, and on-site). This format offers an intuitive visual summary, helping job seekers understand the flexibility of job opportunities in 2024.
 
 The job market here is overwhelmingly remote: nearly four out of five postings (78.4%) are fully remote, while another 14.4% offer hybrid options. Only 7.3% require full on-site work. This mix signals strong employer flexibility and broad access to roles regardless of location, with hybrid emerging as a meaningful—but secondary—model. For candidates, remote-first skills (self-management, async collaboration) are likely at a premium, while fully on-site opportunities are comparatively scarce.
+
+```{python}
+import os
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+os.makedirs("figures", exist_ok=True)
+
+df = pd.read_csv("data/cleaned_lightcast.csv", low_memory=False)
+
+# =========================================
+# 1️⃣ Clean REMOTE_TYPE_NAME
+# =========================================
+df["REMOTE_TYPE_NAME"] = (
+    df["REMOTE_TYPE_NAME"]
+    .astype(str)
+    .str.strip()
+    .str.lower()
+    .replace({
+        "[none]": None,
+        "none": None,
+        "unknown": None,
+        "nan": None,
+        "na": None,
+        "null": None,
+        "": None
+    })
+)
+
+# =========================================
+# 2️⃣ Re-group into Remote / Hybrid / Onsite
+# =========================================
+def map_remote(x):
+    if pd.isna(x):
+        return "Onsite"
+    if "remote" in x and "hybrid" in x:
+        return "Hybrid"
+    if x == "hybrid remote":
+        return "Hybrid"
+    if x == "remote":
+        return "Remote"
+    if x == "not remote":
+        return "Onsite"
+    return "Onsite"
+
+df["REMOTE_GROUP"] = df["REMOTE_TYPE_NAME"].apply(map_remote)
+
+print(df["REMOTE_GROUP"].value_counts())
+
+# =========================================
+# 3️⃣ Visualization (Pie Chart)
+# =========================================
+remote_counts = df["REMOTE_GROUP"].value_counts()
+
+plt.figure(figsize=(6, 6))
+plt.pie(
+    remote_counts.values,
+    labels=remote_counts.index,
+    autopct="%1.1f%%",
+    startangle=90,
+    wedgeprops={"edgecolor": "white"}
+)
+plt.title("Remote vs. Hybrid vs. Onsite Job Distribution", fontsize=13)
+plt.tight_layout()
+plt.savefig("figures/remote_vs_onsite.png", dpi=300, bbox_inches="tight")
+plt.show()
+```
