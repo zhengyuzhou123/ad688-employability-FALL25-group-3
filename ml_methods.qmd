@@ -418,7 +418,12 @@ fig.update_xaxes(title_text="Predicted Label")
 fig.update_yaxes(title_text="True Label")
 
 fig.write_image("figures/confusion_matrix_comparison.jpg")
+fig
 ```
+
+This graph compares the classification effects of logistic regression and random forest in distinguishing between remote and offline positions.
+Both models can identify offline positions very well, but they are more difficult to identify remote positions. Among them, the random forest captures more remote positions, but it also brings more misjudgments.
+Overall, industry and regional characteristics have a certain predictive power for whether it is remote, but they are still not sufficient to completely distinguish between the two types of positions.
 
 # KMeans Clustering using ONET as reference label
 ```{python}
@@ -705,6 +710,8 @@ fig.write_image("figures/kmeans_cluster_distribution.jpg")
 fig
 ```
 
+This graph shows the distribution of the number of positions in each cluster after KMeans divides the positions into three clusters. It can be seen that Cluster 1 contains the most positions, indicating that the positions in the market are mainly concentrated in this type of positions with similar characteristics. In contrast, the number of positions in Cluster 0 and Cluster 2 is significantly smaller, representing some more specialized or relatively niche job types.
+
 # Choropleth Map: Remote Work Percentage by State
 ```{python}
 import pandas as pd
@@ -817,6 +824,8 @@ print("Enhanced choropleth map saved!")
 fig
 ```
 
+This map shows the spatial differences in the proportion of remote positions in each state. Overall, the proportion of remote work is relatively high in the western and some northeastern states (such as Alaska, Colorado, Utah, etc.), while in many southern and central states, in-person jobs still dominate. This indicates that remote opportunities are not geographically balanced, and regional factors still affect the availability of remote employment.
+
 # Choropleth Map: Total Job Postings by State (with labels)
 ```{python}
 import plotly.graph_objects as go
@@ -874,6 +883,11 @@ print("Enhanced total jobs choropleth map saved!")
 fig
 ```
 
+This map shows the total distribution of jobs in each state.
+It can be seen that California and Texas have the highest number of positions, clearly leading. Populous and economically large states such as New York and Florida are also at a relatively high level.
+This indicates that job opportunities are highly concentrated in a few states with a concentrated economy and industry, which has significant reference value for job seekers when choosing a working area.
+
+
 # Bar Chart: Top 10 States by Remote Work Percentage
 ```{python}
 # Filter states with at least 100 jobs for meaningful comparison
@@ -905,3 +919,6 @@ fig.write_image("figures/top10_remote_states.jpg")
 print("Top 10 remote states bar chart saved!")
 fig
 ```
+
+This bar chart shows the top 10 states with the highest proportion of remote positions. It can be seen that the proportion of remote work in states such as Alaska, Wyoming and Vermont exceeds 35%, significantly higher than the national average.
+This indicates that in these states, enterprises are more inclined to adopt remote models, and it also provides job seekers with more employment opportunities that are not restricted by geography.

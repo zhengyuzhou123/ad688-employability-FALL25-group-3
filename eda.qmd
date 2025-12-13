@@ -91,38 +91,35 @@ df = pd.read_csv("data/cleaned_lightcast.csv", low_memory=False)
 industry_col = "NAICS_2022_6_NAME"
 salary_col = "SALARY"
 
-# Filter and clean salary
+# Remove Unclassified invalid wages
+df = df.dropna(subset=[industry_col, salary_col])
+df = df[df[industry_col].str.strip().ne("Unclassified Industry")]
 df = df[df[salary_col] > 0]
-#df = df[~df[industry_col].str.lower().str.contains("unclassified")]
 
-# Compute average salary by industry
-avg_salary = (
-    df.groupby(industry_col)[salary_col]
-    .mean()
-    .sort_values(ascending=False)
-    .head(10)
-)
+# top 10 Industries
+top10 = df[industry_col].value_counts().head(10).index
+df_top = df[df[industry_col].isin(top10)].copy()
 
-# Visual
+# boxplot
 plt.figure(figsize=(10, 6))
-sns.barplot(
-    x=avg_salary.values,
-    y=avg_salary.index,
-    orient="h"
-)
-plt.title("Average Salary by Industry (Excluding Unclassified)")
-plt.xlabel("Average Salary ($)")
+sns.boxplot(data=df_top, 
+y=industry_col, 
+x=salary_col,
+palette="Set2")
+
+plt.title("Salary Distribution by Industry (Top 10 Industries, excl. Unclassified)")
+plt.xlabel("Salary (USD)")
 plt.ylabel("Industry")
 plt.tight_layout()
-
-# save
-plt.savefig("figures/average_salary_by_industry.png", dpi=300, bbox_inches="tight")
+plt.savefig("figures/salary_boxplot_top10_no_unclassified.png", dpi=300, bbox_inches="tight")
 plt.show()
 ```
 
-Another bar chart was used to present the average salary across industries. Bar charts are effective for showing ranked values, making it easy to identify the highest-paying sectors and support data-driven career decisions.
+Summarize the salary distribution of each industry through the box chart. Compared with the bar chart, which only gives the average value, the box chart shows the median, quartile distance and out-of-group points, which is convenient for comparing the salary level and volatility of the industry.
 
-Average pay skews toward specialized, capital-intensive niches. Polish & Other Sanitation Good Manufacturing tops the list (~$215k), followed by Rubber & Plastics Hoses/Belting and Agents for Wireless Telecommunications Services (~$185–$200k). A middle tier includes Irradiation Apparatus and Misc. Waste Management (~$175–$185k), while Web Search Portals, Plastics Bag/Pouch, and transport/retail (Rail Support, Electronics & Appliance Retailers, Wineries) cluster near the lower bound (~$150–$165k). Overall, excluding unclassified roles, high salaries concentrate in specialized manufacturing and regulated services.
+In general, the technology and consulting industries have the highest salary ceiling and the widest range, with both middle-level positions and a small number of high-paying positions (off-group points on the right). The range of industries such as education and finance is narrower and less volatile, and the salary is more stable but the upper limit is lower.
+
+After excluding unclassified, the chart emphasizes the trade-off of industry selection: high potential is often accompanied by greater fluctuations, while stable industry peaks are lower, which is conducive to prioritization judgments beyond the number of positions.
 
 ### Remote vs. On-Site Jobs
 ```{python}

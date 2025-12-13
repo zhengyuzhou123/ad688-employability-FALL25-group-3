@@ -18,13 +18,20 @@ format:
 x
 
 # Introduction
-{{< include introduction.qmd >}}
+{{< include index.qmd >}}
 
 # Data Cleaning & Preprocessing
-{{< include data_analysis.qmd >}}
+{{< include data_cleaning.qmd >}}
 
 # Skill Gap Analysis
-{{< include skill_gap_analysis.qmd >}}
+{{< embed skill_gap_analysis.qmd >}}
 
 # Machine Learning Models
-{{< include ml_methods.qmd >}}
+{{< embed ml_methods.qmd >}}
+
+# Natural Language Processing
+{{< embed nlp_methods.qmd >}}
+
+# Exploratory Data Analysis
+{{< embed eda.qmd >}}
+
