@@ -27,7 +27,7 @@ jupyter: python3
 #| output: false
 import sys, subprocess
 
-for pkg in ["gdown", "pandas", "matplotlib", "missingno", "pyarrow", "scikit-learn", "pyspark"]:
+for pkg in ["gdown", "pandas", "matplotlib", "missingno", "pyarrow", "scikit-learn",]:
     subprocess.run([sys.executable, "-m", "pip", "install", pkg], check=False)
 ```
 ```{python}
