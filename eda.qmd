@@ -1,0 +1,162 @@
+---
+title: "Exploratory Data Analysis"
+subtitle: "Comprehensive Exploratory Analysis"
+author:
+  - name: "Bingrui Qiao"
+  - name: "Zhengyu Zhou"
+  - name: "Junhao Wang"
+    affiliations: "Boston University"
+bibliography: references.bib
+csl: csl/econometrica.csl
+format:
+  html:
+    toc: true
+    number-sections: true
+execute:
+  echo: true
+  eval: true
+  freeze: false
+  error: false
+  cache: false
+  enabled: !expr (os.getenv("CI", "false") != "true")
+jupyter: python3
+---
+
+## Exploratory Data Analysis (EDA)
+
+Exploratory Data Analysis (EDA) allows us to identify patterns and distributions in the job market dataset.  
+In this section, we focus on three aspects:
+1. Job postings by industry  
+2. Salary distributions  
+3. Remote vs. on-site job proportions
+
+---
+
+### Job Postings by Industry
+
+Understanding industry demand helps reveal which sectors are most active in hiring.
+
+```{python}
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import os
+
+# Load dataset
+df = pd.read_csv("data/cleaned_lightcast.csv", low_memory=False)
+
+# Ensure /figures directory exists
+os.makedirs("figures", exist_ok=True)
+
+# col
+industry_col = "NAICS_2022_6_NAME"
+
+# Clean up column names
+df.columns = df.columns.str.strip()
+
+#drop unclassified
+df = df[~df["NAICS_2022_6_NAME"].str.lower().str.contains("unclassified", na=False)]
+
+# Count top 10 industries
+top_industries = df[industry_col].value_counts().head(10)
+
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=top_industries.values, y=top_industries.index, orient="h")
+plt.title("Top 10 Industries by Job Postings")
+plt.xlabel("Number of Job Postings")
+plt.ylabel("Industry")
+plt.tight_layout()
+plt.savefig("figures/industry_postings.png", dpi=300)
+plt.show()
+```
+
+A bar chart was chosen to visualize the number of job postings across different industries. This format makes it easy to compare industry demand and helps job seekers understand which sectors have the highest hiring activity.
+
+Job demand is concentrated in tech and professional services: Custom Computer Programming Services leads, followed closely by Management Consulting, Employment Placement Agencies, and Computer Systems Design—each with ~4–5k postings. After these, volumes drop sharply to a second tier (Commercial Banking, CPA offices, Temporary Help, Health/Medical Insurance, Other Computer Services, Colleges/Universities) at ~1.3–2.0k. The prominence of staffing/placement agencies signals broad, economy-wide hiring, while the tech-heavy top ranks highlight sustained demand for digital and knowledge-worker skills.
+
+
+### Salary Distribution by Industry
+```{python}
+import os
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+os.makedirs("figures", exist_ok=True)
+
+df = pd.read_csv("data/cleaned_lightcast.csv", low_memory=False)
+
+# Define column names
+industry_col = "NAICS_2022_6_NAME"
+salary_col = "SALARY"
+
+# Remove Unclassified invalid wages
+df = df.dropna(subset=[industry_col, salary_col])
+df = df[df[industry_col].str.strip().ne("Unclassified Industry")]
+df = df[df[salary_col] > 0]
+
+# top 10 Industries
+top10 = df[industry_col].value_counts().head(10).index
+df_top = df[df[industry_col].isin(top10)].copy()
+
+# boxplot
+plt.figure(figsize=(10, 6))
+sns.boxplot(data=df_top, 
+y=industry_col, 
+x=salary_col,
+palette="Set2")
+
+plt.title("Salary Distribution by Industry (Top 10 Industries, excl. Unclassified)")
+plt.xlabel("Salary (USD)")
+plt.ylabel("Industry")
+plt.tight_layout()
+plt.savefig("figures/salary_boxplot_top10_no_unclassified.png", dpi=300, bbox_inches="tight")
+plt.show()
+```
+
+Summarize the salary distribution of each industry through the box chart. Compared with the bar chart, which only gives the average value, the box chart shows the median, quartile distance and out-of-group points, which is convenient for comparing the salary level and volatility of the industry.
+
+In general, the technology and consulting industries have the highest salary ceiling and the widest range, with both middle-level positions and a small number of high-paying positions (off-group points on the right). The range of industries such as education and finance is narrower and less volatile, and the salary is more stable but the upper limit is lower.
+
+After excluding unclassified, the chart emphasizes the trade-off of industry selection: high potential is often accompanied by greater fluctuations, while stable industry peaks are lower, which is conducive to prioritization judgments beyond the number of positions.
+
+### Remote vs. On-Site Jobs
+```{python}
+import os
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+os.makedirs("figures", exist_ok=True)
+
+df = pd.read_csv("data/cleaned_lightcast.csv", low_memory=False)
+
+# Clean the REMOTE_TYPE_NAME column
+df["REMOTE_TYPE_NAME"] = (
+    df["REMOTE_TYPE_NAME"]
+    .astype(str).str.strip().str.lower()
+    .replace({"[none]": None, "none": None, "unknown": None, "nan": None, "na": None, "null": None, "": None})
+)
+
+# Count each type
+remote_counts = df["REMOTE_TYPE_NAME"].value_counts()
+
+# Visual
+plt.figure(figsize=(6, 6))
+plt.pie(
+    remote_counts.values,
+    labels=remote_counts.index,
+    autopct="%1.1f%%",
+    startangle=90,
+    wedgeprops={"edgecolor": "white"}
+)
+plt.title("Remote vs. On-Site Job Distribution", fontsize=13)
+plt.tight_layout()
+plt.savefig("figures/remote_vs_onsite.png", dpi=300, bbox_inches="tight")
+plt.show()
+```
+
+A pie chart was selected to display the proportions of job types (remote, hybrid, and on-site). This format offers an intuitive visual summary, helping job seekers understand the flexibility of job opportunities in 2024.
+
+The job market here is overwhelmingly remote: nearly four out of five postings (78.4%) are fully remote, while another 14.4% offer hybrid options. Only 7.3% require full on-site work. This mix signals strong employer flexibility and broad access to roles regardless of location, with hybrid emerging as a meaningful—but secondary—model. For candidates, remote-first skills (self-management, async collaboration) are likely at a premium, while fully on-site opportunities are comparatively scarce.

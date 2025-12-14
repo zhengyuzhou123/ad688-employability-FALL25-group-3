@@ -1,0 +1,131 @@
+```{python}
+#| echo: false
+#| output: false
+import sys, subprocess
+
+for pkg in ["nltk", "wordcloud", "scikit-learn"]:
+    subprocess.run([sys.executable, "-m", "pip", "install", pkg], check=False) 
+```
+
+# 1.import and setup
+```{python}
+import pandas as pd
+import numpy as np
+import re
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+# Download nltk assets
+nltk.download("stopwords")
+nltk.download("wordnet")
+nltk.download("omw-1.4")
+
+# Load cleaned dataset
+lightcast_data = pd.read_csv("data/cleaned_lightcast.csv", low_memory=False)
+lightcast_data["BODY"] = lightcast_data["BODY"].fillna("")
+```
+
+# 2.Basic Text Cleaning
+```{python}
+# Lowercase
+lightcast_data["BODY_lower"] = lightcast_data["BODY"].str.lower()
+
+# Remove non-letters and extra spaces
+lightcast_data["BODY_lower"] = lightcast_data["BODY_lower"].apply(
+    lambda x: re.sub(r"[^a-z\s]", " ", x)
+)
+lightcast_data["BODY_lower"] = lightcast_data["BODY_lower"].apply(
+    lambda x: re.sub(r"\s+", " ", x).strip()
+)
+```
+
+# 3.Remove filler words
+```{python}
+filler_words = [
+    "the","is","in","and","to","of","a","for","on","with","as","by","at","an",
+    "be","this","that","it","from","or"
+]
+
+pattern = r'\b(?:' + "|".join(filler_words) + r')\b'
+lightcast_data["BODY_lower"] = lightcast_data["BODY_lower"].str.replace(pattern, " ", regex=True)
+lightcast_data["BODY_lower"] = lightcast_data["BODY_lower"].str.replace(r"\s+", " ", regex=True)
+
+# Word count
+lightcast_data["BODY_word_count"] = lightcast_data["BODY_lower"].apply(lambda x: len(x.split()))
+```
+
+# 4.Lemmatization
+```{python}
+stop_words = set(stopwords.words("english"))
+lemmatizer = WordNetLemmatizer()
+
+def preprocess_lemmatize(text):
+    tokens = text.split()
+    tokens = [w for w in tokens if w not in stop_words]
+    tokens = [lemmatizer.lemmatize(w) for w in tokens]
+    return " ".join(tokens)
+
+lightcast_data["BODY_lemmatized"] = lightcast_data["BODY_lower"].apply(preprocess_lemmatize)
+```
+
+# 5.TF-IDF Vectorization
+```{python}
+tfidf_vectorizer = TfidfVectorizer(max_features=10000)
+tfidf_matrix = tfidf_vectorizer.fit_transform(lightcast_data["BODY_lemmatized"])
+
+feature_names = tfidf_vectorizer.get_feature_names_out()
+tfidf_scores = np.asarray(tfidf_matrix.sum(axis=0)).ravel()
+
+all_terms = pd.DataFrame({
+    "term": feature_names,
+    "importance": tfidf_scores
+}).sort_values("importance", ascending=False)
+```
+
+# 6.Remove meaningless high-frequency job description words
+```{python}
+generic_terms = {
+    "data","experience","business","job","work","team","solution","management","system",
+    "client","process","year","project","ability","position","time","service","information",
+    "description","requirement","employee","technical","benefit","customer","application",
+    "need","required","preferred","must","strong","sap","skill","analyst","support","technology",
+    "opportunity","analysis","enterprise", "including","role","development", "status","full","program","tool","may","product","knowledge","company","report","new", "working","oracle","functional","related","provide","quality","implementation","id","help","day","pay","employer","reporting","based","applicant","detail","hour","employment","design", "industry","develop","lead","candidate","ensure","plan","disability", "architecture","range",
+    "degree", "level","insight","user","practice","career","qualification","erp","paid"
+}
+
+filtered_terms = all_terms[~all_terms["term"].isin(generic_terms)]
+top_keywords = filtered_terms.head(20)
+
+top_keywords
+```
+
+# Create wordcloud
+```{python}
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
+
+# Convert top keywords into a dictionary {term: importance}
+word_freq = dict(zip(top_keywords["term"], top_keywords["importance"]))
+
+# Create the word cloud
+wc = WordCloud(
+    width=1200,
+    height=600,
+    background_color="white",
+    colormap="viridis",   
+    prefer_horizontal=0.9
+).generate_from_frequencies(word_freq)
+
+# Plot it
+plt.figure(figsize=(14, 7))
+plt.imshow(wc, interpolation="bilinear")
+plt.axis("off")
+plt.title("Top NLP Keywords from Job Descriptions", fontsize=18)
+plt.tight_layout()
+
+#save
+plt.savefig("figures/WordCloud.png", dpi=300, bbox_inches="tight")
+plt.show()
+```

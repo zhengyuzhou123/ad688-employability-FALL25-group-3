@@ -1,0 +1,138 @@
+---
+title: "Skill Analysis"
+subtitle: "Skill Gap Analysis"
+author:
+  - name: "Bingrui Qiao"
+  - name: "Zhengyu Zhou"
+  - name: "Junhao Wang"
+    affiliations: "Boston University"
+bibliography: references.bib
+csl: csl/econometrica.csl
+format:
+  html:
+    toc: true
+    number-sections: true
+execute:
+  echo: true
+  eval: true
+  freeze: false
+  error: false
+  cache: false
+  enabled: !expr (os.getenv("CI", "false") != "true")
+jupyter: python3
+---
+# Create a team-based skill dataframe
+```{python}
+import pandas as pd
+
+skills_data = {
+    "Name": ["Bingrui Qiao", "Zhengyu Zhou", "Junhao Wang"],
+    "Python": [2, 2, 3],
+    "SQL": [2, 2, 3],
+    "Machine Learning": [1, 1, 1],
+    "Cloud Computing": [2, 2, 3],
+    "Docker": [1, 1, 1],
+    "AWS": [2, 3, 2]
+}
+
+df_skills = pd.DataFrame(skills_data)
+df_skills.set_index("Name", inplace=True)
+df_skills
+```
+# Visualizing Skill Gaps
+```{python}
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+#visual
+sns.set_theme(style="whitegrid", font_scale=1.1, rc={
+    "axes.facecolor": "white",
+    "figure.facecolor": "white",
+    "axes.edgecolor": "gray",
+    "grid.color": "lightgray"
+})
+
+# Color choice
+cmap = sns.diverging_palette(220, 20, as_cmap=True)
+
+# visual
+plt.figure(figsize=(9, 6))
+ax = sns.heatmap(
+    df_skills,
+    annot=True,
+    fmt=".0f",
+    cmap=cmap,
+    linewidths=0.7,
+    cbar_kws={'label': 'Skill Level'},
+    square=True
+)
+
+# Title
+plt.title("Team Skill Levels Heatmap", fontsize=15, weight="bold", pad=20)
+plt.xlabel("Skill Domain", fontsize=12)
+plt.ylabel("Team Member", fontsize=12)
+
+# layout
+plt.xticks(rotation=30, ha="right")
+plt.yticks(rotation=0)
+plt.tight_layout()
+
+#save
+plt.savefig("figures/Skill_Gap_Analysis.png", dpi=300, bbox_inches="tight")
+plt.show()
+```
+
+# Compare skill
+```{python}
+# Load data
+df = pd.read_csv("data/cleaned_lightcast.csv")
+
+# Count keyword occurrences
+top_skills = df_skills.columns.tolist()
+job_text = df["BODY"].fillna("")
+skill_counts = {s: job_text.str.contains(s, case=False).sum() for s in top_skills}
+
+# Append demand row
+df_skills.loc["Market Demand"] = [skill_counts[s] for s in top_skills]
+df_skills
+```
+# Visual heatmap
+```{python}
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Same style
+sns.set_theme(style="whitegrid", font_scale=1.1, rc={
+    "axes.facecolor": "white",
+    "figure.facecolor": "white",
+    "axes.edgecolor": "gray",
+    "grid.color": "lightgray"
+})
+
+
+cmap = sns.diverging_palette(220, 20, as_cmap=True)
+
+# Team Skill Levels
+plt.figure(figsize=(8, 2.5))
+plt.imshow(df_skills.iloc[:-1], aspect="auto", cmap=cmap)
+plt.colorbar(label="Skill Level (1–5)")
+plt.yticks(range(len(df_skills.index)-1), df_skills.index[:-1], fontsize=10)
+plt.xticks(range(len(df_skills.columns)), df_skills.columns, rotation=30, ha="right", fontsize=9)
+plt.title("Team Skill Levels", fontsize=13, weight="bold")
+plt.tight_layout()
+plt.savefig("figures/Team_Skill_Level.png", dpi=300, bbox_inches="tight")
+plt.show()
+
+# Market Demand Heatmap
+plt.figure(figsize=(8, 2))
+plt.imshow([df_skills.loc["Market Demand"]], aspect="auto", cmap=cmap)
+plt.colorbar(label="Market Demand Count")
+plt.yticks([0], ["Market Demand"], fontsize=10)
+plt.xticks(range(len(df_skills.columns)), df_skills.columns, rotation=30, ha="right", fontsize=9)
+plt.title("Market Demand", fontsize=13, weight="bold")
+plt.tight_layout()
+plt.savefig("figures/Market_Demand.png", dpi=300, bbox_inches="tight")
+plt.show()
+```
+
+

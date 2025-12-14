@@ -1,0 +1,924 @@
+---
+title: "Machine Learning Models for Geographic and Remote Work Analysis"
+subtitle: "KMeans Clustering, Salary Prediction, and Remote Work Classification"
+author:
+  - name: "Bingrui Qiao"
+  - name: "Zhengyu Zhou"
+  - name: "Junhao Wang"
+    affiliations: "Boston University"
+bibliography: references.bib
+csl: csl/econometrica.csl
+format:
+  html:
+    toc: true
+    number-sections: true
+execute:
+  echo: true
+  eval: true
+  freeze: false
+  error: false
+  cache: false
+  enabled: !expr (os.getenv("CI", "false") == "true")
+jupyter: python3
+---
+# Classification: Remote vs Non-Remote Jobs
+```{python}
+#| echo: false
+#| output: false
+import sys, subprocess
+
+for pkg in ["gdown", "pandas", "matplotlib", "missingno", "pyarrow", "scikit-learn",]:
+    subprocess.run([sys.executable, "-m", "pip", "install", pkg], check=False)
+```
+```{python}
+# Import necessary libraries
+import pandas as pd
+import plotly.express as px
+import plotly.io as pio
+import numpy as np
+
+# Set seed for reproducibility
+np.random.seed(42)
+
+# Set plotly renderer
+pio.renderers.default = "notebook+notebook_connected+vscode"
+
+# Initialize Spark Session
+df = pd.read_csv("data/lightcast_job_postings.csv", low_memory=False)
+
+# Print schema and preview first few rows
+print("--- Diagnostic check: Schema and sample rows ---")
+print(df.info())
+print(df.head())
+```
+
+```{python}
+# Take subset of relevant columns
+relevant_columns = [
+    "SALARY", "MIN_YEARS_EXPERIENCE", "EDUCATION_LEVELS_NAME",
+    "EMPLOYMENT_TYPE_NAME", "REMOTE_TYPE_NAME", "DURATION", 
+    "IS_INTERNSHIP", "COMPANY_IS_STAFFING", "STATE_NAME", "CITY_NAME",
+    "MSA_NAME", "ONET", "ONET_NAME", "NAICS2_NAME", "TITLE_NAME"
+]
+
+df_analysis = df[relevant_columns].copy()
+
+df_analysis.head()
+```
+
+```{python}
+
+df_analysis["REMOTE_TYPE_NAME"] = df_analysis["REMOTE_TYPE_NAME"].astype(str).str.strip()
+
+remote_col = df_analysis["REMOTE_TYPE_NAME"].replace({"[None]": None})
+
+df_analysis["REMOTE_GROUP"] = np.select(
+    [
+        remote_col.eq("Remote"),
+        remote_col.eq("Hybrid Remote"),
+        remote_col.eq("Not Remote"),
+        remote_col.isna()
+    ],
+    ["Remote", "Hybrid", "Onsite", "Onsite"],
+    default="Onsite"
+)
+
+df_analysis.drop(columns=["REMOTE_TYPE_NAME"], inplace=True)
+
+
+# EMPLOYMENT_GROUP
+emp_col = df_analysis["EMPLOYMENT_TYPE_NAME"].astype(str).str.strip()
+
+df_analysis["EMPLOYMENT_GROUP"] = np.select(
+    [
+        emp_col.eq("Full-time (> 32 hours)"),
+        emp_col.eq("Part-time (â¤ 32 hours)"),
+        emp_col.eq("Part-time / full-time"),
+        emp_col.isna()
+    ],
+    ["Full-time", "Part-time", "Flexible", "Full-time"],
+    default="Flexible"
+)
+
+df_analysis.drop(columns=["EMPLOYMENT_TYPE_NAME"], inplace=True)
+
+# MIN_YEARS_EXPERIENCE & group
+
+df_analysis["MIN_YEARS_EXPERIENCE"] = df_analysis["MIN_YEARS_EXPERIENCE"].fillna(0)
+
+# make sure it is numerical
+df_analysis["MIN_YEARS_EXPERIENCE"] = pd.to_numeric(
+    df_analysis["MIN_YEARS_EXPERIENCE"],
+    errors="coerce"
+).fillna(0)
+
+exp = df_analysis["MIN_YEARS_EXPERIENCE"]
+
+df_analysis["MIN_YEARS_EXPERIENCE_GROUP"] = np.select(
+    [
+        (exp >= 0) & (exp <= 1),
+        (exp > 1) & (exp <= 3),
+        (exp > 3) & (exp <= 5),
+        (exp > 5) & (exp <= 10),
+        (exp > 10)
+    ],
+    ["Internship/Entry Level", "Junior", "Mid-Level", "Senior", "Expert"],
+    default="Internship/Entry Level"
+)
+
+
+# DURATION：null value & 0 -> 1
+
+dur = df_analysis["DURATION"]
+df_analysis["DURATION"] = (
+    dur.fillna(1)
+       .replace(0, 1)
+)
+
+
+# clean EDUCATION_LEVELS_NAME -> EDUCATION_LEVELS_CLEAN
+
+edu_raw = df_analysis["EDUCATION_LEVELS_NAME"].fillna("")
+edu_clean = (
+    edu_raw
+    .astype(str)
+    .str.replace(r"[\[\]\n]", "", regex=True)
+    .str.strip()
+)
+df_analysis["EDUCATION_LEVELS_CLEAN"] = edu_clean
+df_analysis.drop(columns=["EDUCATION_LEVELS_NAME"], inplace=True)
+
+
+# Fill in the blank STATE_NAME/CITY_NAME
+
+
+df_analysis["STATE_NAME"] = df_analysis["STATE_NAME"].fillna("Unknown")
+df_analysis["CITY_NAME"] = df_analysis["CITY_NAME"].fillna("Unknown")
+
+
+# ONET/ONET_NAME/NAICS2_NAME null value handling
+
+df_analysis["ONET"] = df_analysis["ONET"].fillna("00-0000.00")
+df_analysis["ONET_NAME"] = df_analysis["ONET_NAME"].fillna("Unknown")
+df_analysis["NAICS2_NAME"] = df_analysis["NAICS2_NAME"].fillna("Unknown")
+
+print(df_analysis.head())
+```
+
+```{python}
+# Prepare binary classification data (Remote vs Onsite only)
+
+df_binary = df_analysis[df_analysis["REMOTE_GROUP"].isin(["Remote", "Onsite"])].copy()
+
+print(df_binary["REMOTE_GROUP"].value_counts())
+#
+```
+
+```{python}
+# Feature Engineering - Encode categorical variables
+
+
+# Define categorical and numeric columns
+import numpy as np
+import pandas as pd
+
+from sklearn.preprocessing import OneHotEncoder, LabelEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+
+categorical_cols = [
+    "EMPLOYMENT_GROUP",
+    "MIN_YEARS_EXPERIENCE_GROUP",
+    "EDUCATION_LEVELS_CLEAN",
+    "STATE_NAME",
+    "NAICS2_NAME"
+]
+numeric_cols = ["MIN_YEARS_EXPERIENCE", "DURATION"]
+
+# 1. create label
+
+label_encoder = LabelEncoder()
+df_binary["label"] = label_encoder.fit_transform(df_binary["REMOTE_GROUP"])
+
+# Take a look at the category order
+print("Label mapping:", dict(zip(label_encoder.classes_,
+                                 label_encoder.transform(label_encoder.classes_))))
+
+# 2. create features（indexer + onehot + VectorAssembler）
+X = df_binary[categorical_cols + numeric_cols]
+y = df_binary["label"]
+
+# ColumnTransformer 
+preprocess = ColumnTransformer(
+    transformers=[
+        ("cat", OneHotEncoder(handle_unknown="ignore"), categorical_cols),
+        ("num", "passthrough", numeric_cols),
+    ]
+)
+
+X_features = preprocess.fit_transform(X)
+
+print("--- Prepared Data Preview (pandas + sklearn) ---")
+print("X_features type:", type(X_features))
+print("X_features shape:", X_features.shape)
+print("First 5 labels:", y.iloc[:5].tolist())
+print("First 5 REMOTE_GROUP:", df_binary["REMOTE_GROUP"].iloc[:5].tolist())
+
+
+if hasattr(X_features, "toarray"):
+    X_dense = X_features.toarray()
+else:
+    X_dense = np.asarray(X_features)
+
+
+df_prepared = pd.DataFrame({
+    "REMOTE_GROUP": df_binary["REMOTE_GROUP"].reset_index(drop=True),
+    "label": y.reset_index(drop=True),     # df_binary["label"]
+    "features": list(X_dense)             # One for each line numpy array
+})
+
+print("\n--- df_prepared preview ---")
+print(df_prepared.head())
+print(df_prepared.shape)
+```
+
+
+```{python}
+from sklearn.model_selection import train_test_split
+
+
+train_data, test_data = train_test_split(
+    df_prepared,
+    test_size=0.3,        # 30% for test
+    random_state=42,      # seed=42
+)
+
+print(f"Training set size: {len(train_data)}")
+print(f"Test set size: {len(test_data)}")
+```
+
+```{python}
+import numpy as np
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+
+# break out X / y
+X_train = np.stack(train_data["features"].to_numpy())   # shape: (n_train, n_features)
+y_train = train_data["label"].to_numpy()
+
+X_test  = np.stack(test_data["features"].to_numpy())
+y_test  = test_data["label"].to_numpy()
+
+# Logistic Regression
+lr_model = LogisticRegression(
+    max_iter=1000,      
+    n_jobs=-1
+)
+lr_model.fit(X_train, y_train)
+
+# Random Forest
+rf_model = RandomForestClassifier(
+    n_estimators=100,   # = numTrees
+    random_state=42,    # = seed
+    n_jobs=-1
+)
+rf_model.fit(X_train, y_train)
+
+print("Both models trained successfully!")
+```
+
+# Predict
+```{python}
+import numpy as np
+from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
+
+
+# First extract X_test/y_test from test_data
+X_test = np.stack(test_data["features"].to_numpy())
+y_test = test_data["label"].to_numpy()
+
+
+# Predict
+
+# Logistic Regression
+y_pred_lr = lr_model.predict(X_test)
+
+# Obtain the positive class probability using predict_proba and calculate the AUC
+y_proba_lr = lr_model.predict_proba(X_test)[:, 1]
+
+# Random Forest
+y_pred_rf = rf_model.predict(X_test)
+y_proba_rf = rf_model.predict_proba(X_test)[:, 1]
+
+
+# Evaluation：Accuracy / F1 / AUC-ROC
+from sklearn.metrics import f1_score
+
+print("LOGISTIC REGRESSION RESULTS")
+print(f"Accuracy: {accuracy_score(y_test, y_pred_lr):.4f}")
+print(f"F1 Score (weighted): {f1_score(y_test, y_pred_lr, average='weighted'):.4f}")
+print(f"AUC-ROC:  {roc_auc_score(y_test, y_proba_lr):.4f}")
+
+print("RANDOM FOREST RESULTS")
+print(f"Accuracy: {accuracy_score(y_test, y_pred_rf):.4f}")
+print(f"F1 Score (weighted): {f1_score(y_test, y_pred_rf, average='weighted'):.4f}")
+print(f"AUC-ROC:  {roc_auc_score(y_test, y_proba_rf):.4f}")
+```
+
+```{python}
+# Step 7: Confusion Matrix
+from sklearn.metrics import confusion_matrix
+
+print("\n=== Logistic Regression Confusion Matrix (2x2) ===")
+print("(rows = true label, cols = predicted label)")
+
+cm_lr = confusion_matrix(y_test, y_pred_lr, labels=[0, 1])
+cm_lr_df = pd.DataFrame(
+    cm_lr,
+    index=["True 0 (Onsite)", "True 1 (Remote)"],
+    columns=["Pred 0 (Onsite)", "Pred 1 (Remote)"]
+)
+print(cm_lr_df)
+
+print("\n=== Random Forest Confusion Matrix (2x2) ===")
+cm_rf = confusion_matrix(y_test, y_pred_rf, labels=[0, 1])
+cm_rf_df = pd.DataFrame(
+    cm_rf,
+    index=["True 0 (Onsite)", "True 1 (Remote)"],
+    columns=["Pred 0 (Onsite)", "Pred 1 (Remote)"]
+)
+print(cm_rf_df)
+```
+
+# confusion matrix
+```{python}
+import numpy as np
+import pandas as pd
+from sklearn.metrics import confusion_matrix
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+
+
+# Calculate the confusion matrix (in the order of [0, 1])
+cm_lr = confusion_matrix(y_test, y_pred_lr, labels=[0, 1])
+cm_rf = confusion_matrix(y_test, y_pred_rf, labels=[0, 1])
+
+print("Logistic Regression CM:\n", cm_lr)
+print("Random Forest CM:\n", cm_rf)
+
+# The z (list of list) required for converting to plotly
+lr_z = cm_lr.tolist()
+rf_z = cm_rf.tolist()
+
+lr_x = ['Onsite', 'Remote']  # Predicted label
+lr_y = ['Onsite', 'Remote']  # True label
+
+# Visual
+fig = make_subplots(
+    rows=1, cols=2, 
+    subplot_titles=('Logistic Regression', 'Random Forest')
+)
+
+# Logistic Regression heatmap
+fig.add_trace(
+    go.Heatmap(
+        z=lr_z,
+        x=lr_x,
+        y=lr_y,
+        colorscale='Blues',
+        text=lr_z,
+        texttemplate="%{text}",
+        showscale=False
+    ),
+    row=1, col=1
+)
+
+# Random Forest heatmap
+fig.add_trace(
+    go.Heatmap(
+        z=rf_z,
+        x=lr_x,
+        y=lr_y,
+        colorscale='Blues',
+        text=rf_z,
+        texttemplate="%{text}",
+        showscale=True
+    ),
+    row=1, col=2
+)
+
+fig.update_layout(
+    title_text="Remote vs Onsite Job Classification - Confusion Matrix Comparison",
+    title_font_size=16,
+    height=400,
+    width=900
+)
+
+fig.update_xaxes(title_text="Predicted Label")
+fig.update_yaxes(title_text="True Label")
+
+fig.write_image("figures/confusion_matrix_comparison.jpg")
+fig
+```
+
+This graph compares the classification effects of logistic regression and random forest in distinguishing between remote and offline positions.
+Both models can identify offline positions very well, but they are more difficult to identify remote positions. Among them, the random forest captures more remote positions, but it also brings more misjudgments.
+Overall, industry and regional characteristics have a certain predictive power for whether it is remote, but they are still not sufficient to completely distinguish between the two types of positions.
+
+# KMeans Clustering using ONET as reference label
+```{python}
+# KMeans Clustering using ONET as reference label
+
+# Check ONET distribution first
+onet_dist_df = (
+    df_analysis["ONET_NAME"]
+    .value_counts()
+    .reset_index()
+    .rename(columns={"index": "ONET_NAME", "ONET_NAME": "count"})
+)
+
+print(onet_dist_df.head(20))
+```
+
+# Prepare features for KMeans clustering
+```{python}
+# Prepare features for KMeans clustering
+# Define columns
+cluster_categorical_cols = [
+    "EMPLOYMENT_GROUP",
+    "MIN_YEARS_EXPERIENCE_GROUP",
+    "EDUCATION_LEVELS_CLEAN",
+    "STATE_NAME",
+    "REMOTE_GROUP",
+]
+cluster_numeric_cols = ["MIN_YEARS_EXPERIENCE", "DURATION"]
+
+# Prepare the feature table X (only including the columns used for clustering)
+X_cluster = df_analysis[cluster_categorical_cols + cluster_numeric_cols]
+
+# 3. ColumnTransformer = StringIndexer + OneHotEncoder + VectorAssembler
+cluster_preprocess = ColumnTransformer(
+    transformers=[
+        ("cat", OneHotEncoder(handle_unknown="ignore"), cluster_categorical_cols),
+        ("num", "passthrough", cluster_numeric_cols),
+    ]
+)
+
+cluster_pipeline = Pipeline(
+    steps=[
+        ("preprocess", cluster_preprocess)
+    ]
+)
+
+# Fit and merge to generate the features matrix
+X_cluster_features = cluster_pipeline.fit_transform(X_cluster)
+
+if hasattr(X_cluster_features, "toarray"):
+    X_cluster_dense = X_cluster_features.toarray()
+else:
+    X_cluster_dense = np.asarray(X_cluster_features)
+
+print("--- Clustering Features Shape ---")
+print(X_cluster_dense.shape)
+
+# 5. ONET_NAME -> ONET_label
+onet_le = LabelEncoder()
+df_analysis = df_analysis.copy()
+df_analysis["ONET_NAME"] = df_analysis["ONET_NAME"].fillna("Unknown")
+df_analysis["ONET_label"] = onet_le.fit_transform(df_analysis["ONET_NAME"])
+
+print("ONET label mapping (first few):")
+for name, idx in list(zip(onet_le.classes_, range(len(onet_le.classes_))))[:10]:
+    print(idx, "->", name)
+
+# 6. group df_cluster：ONET_NAME | ONET_label | features
+df_cluster = df_analysis.copy()
+df_cluster["features"] = list(X_cluster_dense)
+
+print("--- Clustering Data Prepared (pandas) ---")
+print(df_cluster[["ONET_NAME", "ONET_label", "features"]].head())
+print(df_cluster.shape)
+```
+
+# Find optimal K using Elbow Method
+```{python}
+# Find optimal K using Elbow Method
+import numpy as np
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+
+# Extract the feature matrix from the df_cluster
+X_cluster = np.stack(df_cluster["features"].to_numpy())   # shape: (n_samples, n_features)
+
+k_values = [3, 5, 7, 10, 15, 20]
+silhouette_scores = []
+
+print("--- Finding Optimal K ---")
+for k in k_values:
+    kmeans = KMeans(
+        n_clusters=k,
+        random_state=42,    # seed = 42
+        n_init="auto"      
+    )
+    labels = kmeans.fit_predict(X_cluster)
+
+    score = silhouette_score(X_cluster, labels)
+    silhouette_scores.append(score)
+
+    print(f"K = {k}: Silhouette Score = {score:.4f}")
+```
+
+# Extract the feature matrix
+```{python}
+import numpy as np
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+
+# Extract the feature matrix
+X_cluster = np.stack(df_cluster["features"].to_numpy())  # shape: (n_samples, n_features)
+
+# Train the final KMeans model
+optimal_k = 3
+
+kmeans_final = KMeans(
+    n_clusters=optimal_k,
+    random_state=42,   # seed = 42
+    n_init="auto"
+)
+
+cluster_labels = kmeans_final.fit_predict(X_cluster)  
+
+# Write the cluster back to the DataFrame
+df_clustered = df_cluster.copy()
+df_clustered["cluster"] = cluster_labels   
+
+# 4. calculate silhouette
+final_score = silhouette_score(X_cluster, cluster_labels)
+print(f"\n--- Final KMeans Model (K={optimal_k}) ---")
+print(f"Silhouette Score: {final_score:.4f}")
+
+# Cluster Distribution
+print("\n--- Cluster Distribution ---")
+print(
+    df_clustered["cluster"]
+    .value_counts()
+    .sort_index()
+)
+```
+
+# Analyze clusters vs ONET reference labels
+```{python}
+
+# Cross-tabulation of clusters and ONET
+print("--- Top ONET categories in each cluster ---")
+for cluster_id in range(optimal_k):
+    print(f"\n=== Cluster {cluster_id} ===")
+    top_onet_df = (
+        df_clustered[df_clustered["cluster"] == cluster_id]["ONET_NAME"]
+        .value_counts()
+        .reset_index()
+        .rename(columns={"index": "ONET_NAME", "ONET_NAME": "count"})
+        .head(5)
+    )
+    print(top_onet_df)
+```
+
+# Analyze cluster characteristics
+```{python}
+print("--- Cluster Characteristics ---")
+
+# === Remote work distribution by cluster ===
+print("\n=== Remote Work by Cluster ===")
+remote_by_cluster = (
+    df_clustered
+    .groupby(["cluster", "REMOTE_GROUP"])
+    .size()
+    .reset_index(name="count")
+    .sort_values(["cluster", "REMOTE_GROUP"])
+)
+print(remote_by_cluster)
+
+remote_pivot = remote_by_cluster.pivot(
+    index="cluster",
+    columns="REMOTE_GROUP",
+    values="count"
+).fillna(0).astype(int)
+print("\nRemote work pivot table:")
+print(remote_pivot)
+
+# === Experience level by cluster ===
+print("\n=== Experience Level by Cluster ===")
+exp_by_cluster = (
+    df_clustered
+    .groupby(["cluster", "MIN_YEARS_EXPERIENCE_GROUP"])
+    .size()
+    .reset_index(name="count")
+    .sort_values(["cluster", "MIN_YEARS_EXPERIENCE_GROUP"])
+)
+print(exp_by_cluster)
+
+exp_pivot = exp_by_cluster.pivot(
+    index="cluster",
+    columns="MIN_YEARS_EXPERIENCE_GROUP",
+    values="count"
+).fillna(0).astype(int)
+print("\nExperience level pivot table:")
+print(exp_pivot)
+
+# === Top states by cluster ===
+print("\n=== Top States by Cluster ===")
+for cluster_id in range(optimal_k):
+    print(f"\n--- Cluster {cluster_id} Top States ---")
+    top_states = (
+        df_clustered[df_clustered["cluster"] == cluster_id]["STATE_NAME"]
+        .value_counts()
+        .head(5)
+    )
+    print(top_states)
+```
+
+# Visualization: Elbow Plot
+```{python}
+import pandas as pd
+import plotly.express as px
+
+# obtain the cluster frequency
+cluster_counts_series = (
+    df_clustered["cluster"]
+    .value_counts()
+    .sort_index()
+)
+
+# Clearly create a DataFrame with only two columns, "cluster" and "count"
+cluster_counts = pd.DataFrame({
+    "cluster": cluster_counts_series.index,
+    "count": cluster_counts_series.values
+})
+
+print(cluster_counts)  # Check if the column names are ['cluster', 'count']
+
+# Visual
+fig = px.bar(
+    cluster_counts,
+    x="cluster",
+    y="count",
+    title="KMeans Clustering: Distribution of Jobs Across Clusters",
+    labels={"cluster": "Cluster", "count": "Number of Jobs"},
+    template="plotly_white",
+    color="count",
+    color_continuous_scale="Blues",
+)
+
+fig.update_layout(font=dict(family="Roboto", size=14))
+
+fig.write_image("figures/kmeans_elbow_plot.jpg")
+fig
+```
+
+# Visualization: Cluster Distribution
+```{python}
+import pandas as pd
+import plotly.express as px
+
+# Visualization: Cluster Distribution
+
+# Get cluster counts（
+mapping = {0: 2, 1: 0, 2: 1}
+
+df_clustered["cluster_spark"] = df_clustered["cluster"].map(mapping)
+
+cluster_counts = (
+    df_clustered["cluster_spark"]
+    .value_counts()
+    .sort_index()
+)
+
+
+fig = px.bar(
+    x=cluster_counts.index,
+    y=cluster_counts.values,
+    color=cluster_counts.values,          
+    color_continuous_scale="Blues",      
+    labels={"x": "Cluster", "y": "Number of Jobs", "color": "Number of Jobs"},
+    title="KMeans Clustering: Distribution of Jobs Across Clusters",
+    template="plotly_white",
+)
+
+fig.update_layout(font=dict(family="Roboto", size=14))
+
+fig.write_image("figures/kmeans_cluster_distribution.jpg")
+fig
+```
+
+This graph shows the distribution of the number of positions in each cluster after KMeans divides the positions into three clusters. It can be seen that Cluster 1 contains the most positions, indicating that the positions in the market are mainly concentrated in this type of positions with similar characteristics. In contrast, the number of positions in Cluster 0 and Cluster 2 is significantly smaller, representing some more specialized or relatively niche job types.
+
+# Choropleth Map: Remote Work Percentage by State
+```{python}
+import pandas as pd
+import numpy as np
+
+# Calculate remote work percentage by state (pandas version)
+
+# 1.STATE_NAME & REMOTE_GROUP
+state_remote = (
+    df_analysis
+    .groupby(["STATE_NAME", "REMOTE_GROUP"])
+    .size()
+    .reset_index(name="count")
+)
+
+# 2. pivot：index = STATE_NAME，columns = REMOTE_GROUP（Onsite / Remote / Hybrid）
+state_df = (
+    state_remote
+    .pivot(index="STATE_NAME", columns="REMOTE_GROUP", values="count")
+    .fillna(0)
+    .reset_index()
+)
+
+# Ensure that the "Hybrid" column exists
+if "Hybrid" not in state_df.columns:
+    state_df["Hybrid"] = 0
+
+# Calculate Total and Remote_Pct
+state_df["Total"] = state_df["Onsite"] + state_df["Remote"] + state_df["Hybrid"]
+state_df["Remote_Pct"] = (state_df["Remote"] / state_df["Total"] * 100).round(2)
+
+print("--- State Remote Work Data ---")
+print(state_df.head(10))
+```
+
+# Add state abbreviations for Plotly map
+```{python}
+# State name to abbreviation mapping
+state_abbrev = {
+    'Alabama': 'AL', 'Alaska': 'AK', 'Arizona': 'AZ', 'Arkansas': 'AR', 'California': 'CA',
+    'Colorado': 'CO', 'Connecticut': 'CT', 'Delaware': 'DE', 'Florida': 'FL', 'Georgia': 'GA',
+    'Hawaii': 'HI', 'Idaho': 'ID', 'Illinois': 'IL', 'Indiana': 'IN', 'Iowa': 'IA',
+    'Kansas': 'KS', 'Kentucky': 'KY', 'Louisiana': 'LA', 'Maine': 'ME', 'Maryland': 'MD',
+    'Massachusetts': 'MA', 'Michigan': 'MI', 'Minnesota': 'MN', 'Mississippi': 'MS', 'Missouri': 'MO',
+    'Montana': 'MT', 'Nebraska': 'NE', 'Nevada': 'NV', 'New Hampshire': 'NH', 'New Jersey': 'NJ',
+    'New Mexico': 'NM', 'New York': 'NY', 'North Carolina': 'NC', 'North Dakota': 'ND', 'Ohio': 'OH',
+    'Oklahoma': 'OK', 'Oregon': 'OR', 'Pennsylvania': 'PA', 'Rhode Island': 'RI', 'South Carolina': 'SC',
+    'South Dakota': 'SD', 'Tennessee': 'TN', 'Texas': 'TX', 'Utah': 'UT', 'Vermont': 'VT',
+    'Virginia': 'VA', 'Washington': 'WA', 'West Virginia': 'WV', 'Wisconsin': 'WI', 'Wyoming': 'WY',
+    'District of Columbia': 'DC'
+}
+
+# Add state abbreviation column
+state_df['State_Abbrev'] = state_df['STATE_NAME'].map(state_abbrev)
+
+# Remove rows without valid state abbreviation (e.g., "Unknown")
+state_df_clean = state_df[state_df['State_Abbrev'].notna()]
+
+print(f"States with data: {len(state_df_clean)}")
+print(state_df_clean[['STATE_NAME', 'State_Abbrev', 'Total', 'Remote_Pct']].head(10))
+```
+
+# Choropleth Map with State Labels showing Remote Percentage
+```{python}
+import plotly.graph_objects as go
+
+# Choropleth Map with State Labels showing Remote Percentage
+
+fig = go.Figure(data=go.Choropleth(
+    locations=state_df_clean['State_Abbrev'],
+    z=state_df_clean['Remote_Pct'],
+    locationmode='USA-states',
+    colorscale='Blues',
+    colorbar_title='Remote %',
+    text=state_df_clean['State_Abbrev'] + '<br>' + state_df_clean['Remote_Pct'].astype(str) + '%',
+    hovertemplate='<b>%{text}</b><br>Total Jobs: %{customdata[0]}<br>Remote Jobs: %{customdata[1]}<extra></extra>',
+    customdata=state_df_clean[['Total', 'Remote']].values,
+    marker_line_color='white',
+    marker_line_width=1
+))
+
+# Add state abbreviations with percentages as annotations
+fig.add_scattergeo(
+    locations=state_df_clean['State_Abbrev'],
+    locationmode='USA-states',
+    text=state_df_clean['Remote_Pct'].apply(lambda x: f'{x:.0f}%'),
+    mode='text',
+    textfont=dict(size=8, color='black', family='Arial Black'),
+    showlegend=False
+)
+
+fig.update_layout(
+    title_text='Remote Work Opportunity by State (% of Jobs that are Remote)',
+    title_font_size=18,
+    geo=dict(
+        scope='usa',
+        projection_type='albers usa',
+        showlakes=True,
+        lakecolor='rgb(255, 255, 255)',
+        bgcolor='rgba(0,0,0,0)'
+    ),
+    template='plotly_white',
+    font=dict(family="Roboto", size=14),
+    height=600,
+    width=1000
+)
+
+fig.write_image("figures/choropleth_remote_work_with_labels.jpg")
+print("Enhanced choropleth map saved!")
+fig
+```
+
+This map shows the spatial differences in the proportion of remote positions in each state. Overall, the proportion of remote work is relatively high in the western and some northeastern states (such as Alaska, Colorado, Utah, etc.), while in many southern and central states, in-person jobs still dominate. This indicates that remote opportunities are not geographically balanced, and regional factors still affect the availability of remote employment.
+
+# Choropleth Map: Total Job Postings by State (with labels)
+```{python}
+import plotly.graph_objects as go
+
+# Choropleth Map: Total Job Postings by State (with labels)
+
+# Get top 15 states by total jobs for labeling
+top_states = state_df_clean.nlargest(15, 'Total')['State_Abbrev'].tolist()
+
+fig = go.Figure(data=go.Choropleth(
+    locations=state_df_clean['State_Abbrev'],
+    z=state_df_clean['Total'],
+    locationmode='USA-states',
+    colorscale='Greens',
+    colorbar_title='Total Jobs',
+    hovertemplate='<b>%{location}</b><br>Total Jobs: %{z:,}<br>Remote: %{customdata[0]:,}<br>Onsite: %{customdata[1]:,}<extra></extra>',
+    customdata=state_df_clean[['Remote', 'Onsite']].values,
+    marker_line_color='white',
+    marker_line_width=1.5
+))
+
+# Add labels for top states (format large numbers with K)
+top_state_df = state_df_clean[state_df_clean['State_Abbrev'].isin(top_states)].copy()
+top_state_df['Total_Label'] = top_state_df['Total'].apply(
+    lambda x: f'{x/1000:.1f}K' if x >= 1000 else str(int(x))
+)
+
+fig.add_scattergeo(
+    locations=top_state_df['State_Abbrev'],
+    locationmode='USA-states',
+    text=top_state_df['Total_Label'],
+    mode='text',
+    textfont=dict(size=10, color='darkgreen', family='Arial Black'),
+    showlegend=False
+)
+
+fig.update_layout(
+    title_text='Total Job Postings by State<br><sup>Labels shown for top 15 states by job volume</sup>',
+    title_font_size=16,
+    geo=dict(
+        scope='usa',
+        projection_type='albers usa',
+        showlakes=True,
+        lakecolor='rgb(255, 255, 255)'
+    ),
+    template='plotly_white',
+    font=dict(family="Roboto", size=14),
+    height=600,
+    width=1000
+)
+
+
+fig.write_image("figures/choropleth_total_jobs_with_labels.jpg")
+print("Enhanced total jobs choropleth map saved!")
+fig
+```
+
+This map shows the total distribution of jobs in each state.
+It can be seen that California and Texas have the highest number of positions, clearly leading. Populous and economically large states such as New York and Florida are also at a relatively high level.
+This indicates that job opportunities are highly concentrated in a few states with a concentrated economy and industry, which has significant reference value for job seekers when choosing a working area.
+
+
+# Bar Chart: Top 10 States by Remote Work Percentage
+```{python}
+# Filter states with at least 100 jobs for meaningful comparison
+state_df_filtered = state_df_clean[state_df_clean['Total'] >= 100]
+
+# Sort by remote percentage
+top_remote_states = state_df_filtered.nlargest(10, 'Remote_Pct')
+
+fig = px.bar(
+    top_remote_states,
+    x='STATE_NAME',
+    y='Remote_Pct',
+    color='Remote_Pct',
+    color_continuous_scale='Blues',
+    title='Top 10 States with Highest Remote Work Opportunities',
+    labels={'STATE_NAME': 'State', 'Remote_Pct': 'Remote Work %'},
+    text='Remote_Pct'
+)
+
+fig.update_traces(texttemplate='%{text:.1f}%', textposition='outside')
+fig.update_layout(
+    template='plotly_white',
+    font=dict(family="Roboto", size=14),
+    xaxis_tickangle=-45,
+    showlegend=False
+)
+
+fig.write_image("figures/top10_remote_states.jpg")
+print("Top 10 remote states bar chart saved!")
+fig
+```
+
+This bar chart shows the top 10 states with the highest proportion of remote positions. It can be seen that the proportion of remote work in states such as Alaska, Wyoming and Vermont exceeds 35%, significantly higher than the national average.
+This indicates that in these states, enterprises are more inclined to adopt remote models, and it also provides job seekers with more employment opportunities that are not restricted by geography.
