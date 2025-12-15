@@ -447,6 +447,7 @@ feature_importance_df = feature_importance_df[
 ]
 
 feature_importance_df.head(10)
+
 ```
 ```{python}
 import matplotlib.pyplot as plt
@@ -454,6 +455,7 @@ import matplotlib.pyplot as plt
 def ellipsize(text, max_len=20):
     return text if len(text) <= max_len else text[:max_len] + "..."
 
+top_n = 10
 # Add short names to the complete table
 feature_importance_df["feature_short"] = (
     feature_importance_df["feature"]
