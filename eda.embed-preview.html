@@ -279,7 +279,7 @@
   
 
 
-</header>   <div id="8001bc58-be81-4f2f-a588-56baed67aea3" class="cell markdown">
+</header>   <div id="e36f1ff6-d2e0-48c4-93df-86fec6b62828" class="cell markdown">
 <p>Comprehensive Exploratory Analysis</p>
 <p>Bingrui QiaoZhengyu ZhouJunhao Wang (Boston University)</p>
 <section id="exploratory-data-analysis-eda" class="level2">
@@ -295,7 +295,7 @@ In this section, we focus on three aspects: 1. Job postings by industry<br>
 </section>
 </section>
 </div>
-<div class="cell-container"><div class="cell-decorator"><pre>In [1]:</pre></div><div id="e32009f1" class="cell" data-execution_count="1">
+<div class="cell-container"><div class="cell-decorator"><pre>In [1]:</pre></div><div id="f445088e" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
@@ -336,14 +336,14 @@ In this section, we focus on three aspects: 1. Job postings by industry<br>
 </div>
 </div>
 </div></div>
-<div id="1297bb49" class="cell markdown">
+<div id="556260f8" class="cell markdown">
 <p>A bar chart was chosen to visualize the number of job postings across different industries. This format makes it easy to compare industry demand and helps job seekers understand which sectors have the highest hiring activity.</p>
 <p>Job demand is concentrated in tech and professional services: Custom Computer Programming Services leads, followed closely by Management Consulting, Employment Placement Agencies, and Computer Systems Design—each with ~4–5k postings. After these, volumes drop sharply to a second tier (Commercial Banking, CPA offices, Temporary Help, Health/Medical Insurance, Other Computer Services, Colleges/Universities) at ~1.3–2.0k. The prominence of staffing/placement agencies signals broad, economy-wide hiring, while the tech-heavy top ranks highlight sustained demand for digital and knowledge-worker skills.</p>
 <section id="salary-distribution-by-industry" class="level3">
 <h3 class="anchored" data-anchor-id="salary-distribution-by-industry">Salary Distribution by Industry</h3>
 </section>
 </div>
-<div class="cell-container"><div class="cell-decorator"><pre>In [2]:</pre></div><div id="af0b415e" class="cell" data-execution_count="2">
+<div class="cell-container"><div class="cell-decorator"><pre>In [2]:</pre></div><div id="bf77b6e4" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
@@ -380,7 +380,7 @@ In this section, we focus on three aspects: 1. Job postings by industry<br>
 <span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">"figures/salary_boxplot_top10_no_unclassified.png"</span>, dpi<span class="op">=</span><span class="dv">300</span>, bbox_inches<span class="op">=</span><span class="st">"tight"</span>)</span>
 <span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/tmp/ipykernel_4178/2102583156.py:25: FutureWarning:
+<pre><code>/tmp/ipykernel_4203/2102583156.py:25: FutureWarning:
 
 
 
@@ -395,7 +395,7 @@ Passing `palette` without assigning `hue` is deprecated and will be removed in v
 </div>
 </div>
 </div></div>
-<div id="33455e9c" class="cell markdown">
+<div id="9a1f5f5c" class="cell markdown">
 <p>Summarize the salary distribution of each industry through the box chart. Compared with the bar chart, which only gives the average value, the box chart shows the median, quartile distance and out-of-group points, which is convenient for comparing the salary level and volatility of the industry.</p>
 <p>In general, the technology and consulting industries have the highest salary ceiling and the widest range, with both middle-level positions and a small number of high-paying positions (off-group points on the right). The range of industries such as education and finance is narrower and less volatile, and the salary is more stable but the upper limit is lower.</p>
 <p>After excluding unclassified, the chart emphasizes the trade-off of industry selection: high potential is often accompanied by greater fluctuations, while stable industry peaks are lower, which is conducive to prioritization judgments beyond the number of positions.</p>
@@ -403,7 +403,7 @@ Passing `palette` without assigning `hue` is deprecated and will be removed in v
 <h3 class="anchored" data-anchor-id="remote-vs.-on-site-jobs">Remote vs.&nbsp;On-Site Jobs</h3>
 </section>
 </div>
-<div class="cell-container"><div class="cell-decorator"><pre>In [3]:</pre></div><div id="c3308d9e" class="cell" data-execution_count="3">
+<div class="cell-container"><div class="cell-decorator"><pre>In [3]:</pre></div><div id="ca491a7f" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
@@ -444,7 +444,7 @@ Passing `palette` without assigning `hue` is deprecated and will be removed in v
 </div>
 </div>
 </div></div>
-<div id="016fa81c" class="cell markdown">
+<div id="409c836e" class="cell markdown">
 <p>A pie chart was selected to display the proportions of job types (remote, hybrid, and on-site). This format offers an intuitive visual summary, helping job seekers understand the flexibility of job opportunities in 2024.</p>
 <p>The job market here is overwhelmingly remote: nearly four out of five postings (78.4%) are fully remote, while another 14.4% offer hybrid options. Only 7.3% require full on-site work. This mix signals strong employer flexibility and broad access to roles regardless of location, with hybrid emerging as a meaningful—but secondary—model. For candidates, remote-first skills (self-management, async collaboration) are likely at a premium, while fully on-site opportunities are comparatively scarce.</p>
 </div>
