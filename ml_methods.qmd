@@ -479,7 +479,7 @@ plt.savefig("figures/feature_importance.png", dpi=300)
 plt.show()
 ```
 
-This figure shows the results of the random forest feature importance assessment used to distinguish between remote positions and on-site positions in our Lightcast sample (using one-dimensional coded status, NAICS industry, education level and numerical "minimum working years" variables, excluding the factor of working time). The main driving factor of the model is the "minimum working years". In addition, it is also affected by specific states (such as California and Texas) and industry categories, which shows that the availability of remote work is mainly related to the level of work experience and will vary by region/industry.
+This figure shows the results of the random forest feature importance assessment used to distinguish between remote positions and on-site positions in our Lightcast sample (using one-dimensional coded status, NAICS industry, education level and numerical "minimum working years" variables, excluding the factor of working time). The main driving factor of the model is the "minimum working years". In addition, it is also affected by specific states (such as California and Texas) and industry categories, which shows that the availability of remote work is mainly related to the level of work experience and will vary by region/industrys.
 
 # KMeans Clustering using ONET as reference label
 ```{python}
